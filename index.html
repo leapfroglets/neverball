@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<title>NEVERBALL</title>
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
+    </head>
+
+    <body>
+        <canvas id='canvas'></canvas>
+        <script src='js/math.js'></script>
+        <script src='js/3d.js'></script>
+        <script src='js/screen.js'></script>
+        <script src='js/cube.js'></script>
+        <script src='js/sphere.js'></script>
+        <script src='js/grid.js'></script>
+        <script src='js/events.js'></script>
+        <script src='js/neverball.js'></script>
+        <script src='js/game.js'></script>
+        <script>
+var game = new Game('canvas', {FPS: 60, width:640, height:480});
+game.start();
+
+function resize() {
+    game.resize(window.innerWidth, window.innerHeight);
+}
+
+resize();
+document.addEventListener('resize', resize);
+
+        </script>
+    </body>
+</html>
