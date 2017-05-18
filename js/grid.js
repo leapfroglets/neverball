@@ -52,19 +52,19 @@ function Grid(x, y, z, width, breadth) {
 
     this.set(x, y, z, width, breadth);
 
-    this.draw = function(dinfo) {
-        var projected = [];
+    this.push = function(dinfo) {
         for (var i = 0; i < steps; ++i) {
-            projected.push([]);
             for (var j = 0; j < steps; ++j) {
-                projected[i][j] = dinfo.projectToScreen(this.pts[i][j]);
+                dinfo.points.push(this.pts[i][j]);
             }
         }
 
         for (var i = 0; i + 1 < steps; ++i) {
             for (var j = 0; j + 1 < steps; ++j) {
-                var color = (i + j) % 2 == 0 ? "white" : "rgb(100, 100, 100)";
-                dinfo.surfaces.push([[projected[i][j], projected[i][j + 1], projected[i + 1][j + 1], projected[i + 1][j]], color]);
+                var color = (i + j) % 2 == 0 ? "black" : "rgb(100, 100, 100)";
+                var si = i * steps;
+                var sip = si + steps;
+                dinfo.surfaces.push([[si + j, si + j + 1, sip + j + 1, sip + j], color]);
             }
         }
     }

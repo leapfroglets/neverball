@@ -48,20 +48,19 @@ function Cube(x, y, z, width, breadth, height) {
     }
 
     this.draw = function(dinfo) {
-        var projected = [];
         for (var i = 0; i < 8; ++i) {
             var pt = rotateY(this.pts[i], rot);
             pt.x += origin.x;
             pt.y += origin.y;
             pt.z += origin.z;
-            projected[i] = dinfo.projectToScreen(pt);
+            dinfo.points.push(pt);
         }
 
-        dinfo.surfaces.push([[projected[0], projected[1], projected[2], projected[3]], "red"]);
-        dinfo.surfaces.push([[projected[7], projected[6], projected[5], projected[4]], "green"]);
-        dinfo.surfaces.push([[projected[2], projected[6], projected[7], projected[3]], "black"]);
-        dinfo.surfaces.push([[projected[4], projected[5], projected[1], projected[0]], "blue"]);
-        dinfo.surfaces.push([[projected[2], projected[1], projected[5], projected[6]], "brown"]);
+        dinfo.surfaces.push([[0, 1, 2, 3], "red"]);
+        dinfo.surfaces.push([[7, 6, 5, 4], "green"]);
+        dinfo.surfaces.push([[2, 6, 7, 3], "black"]);
+        dinfo.surfaces.push([[4, 5, 1, 0], "blue"]);
+        dinfo.surfaces.push([[2, 1, 5, 6], "brown"]);
     }
 
     this.update = function() {
