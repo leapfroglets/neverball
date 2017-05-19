@@ -30,28 +30,6 @@ function Sphere(x, y, z, radius) {
 
     var self = this;
 
-    var handleKeyStrokes = function() {
-        var vinc = 0.0005;
-        if (KEY_STATE[KEY_LEFT]) {
-            self.vx -= vinc;
-        }
-        if (KEY_STATE[KEY_RIGHT]) {
-            self.vx += vinc;
-        }
-
-        if (KEY_STATE[KEY_UP]) {
-            self.vz -= vinc;
-        }
-
-        if (KEY_STATE[KEY_DOWN]) {
-            self.vz += vinc;
-        }
-
-        if (KEY_STATE[KEY_SPACE]) {
-            self.vy = .03;
-        }
-    }
-
     this.set(x, y, z, radius);
 
     this.push = function(dinfo) {
@@ -76,7 +54,6 @@ function Sphere(x, y, z, radius) {
     }
 
     this.update = function() {
-        handleKeyStrokes();
         this.origin.x += this.vx;
         this.origin.y += this.vy;
         this.origin.z += this.vz;

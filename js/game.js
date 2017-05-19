@@ -8,7 +8,7 @@ function Game(container_id, options) {
         frame_time = 1000.0 / fps; //in milliseconds
     }
 
-    var camera = createPoint(0, 0, 0);
+    var camera = new Camera(1, 0, 100);
 
     var dinfo = new Renderer(camera, canvas, context);
 
@@ -26,25 +26,31 @@ function Game(container_id, options) {
     var neverball = new NeverBall(dinfo);
 
     var handleKeyStrokes = function() {
-        if (KEY_STATE[KEY_LEFT]) {
-            camera.x -= .01;
-        }
-        if (KEY_STATE[KEY_RIGHT]) {
-            camera.x += .01;
-        }
+        var w = 'W'.charCodeAt(0);
+        var s = 'S'.charCodeAt(0);
+        var a = 'A'.charCodeAt(0);
+        var d = 'D'.charCodeAt(0);
 
-        if (KEY_STATE[KEY_UP]) {
+        if (KEY_STATE[w]) {
             camera.z -= .01;
         }
 
-        if (KEY_STATE[KEY_DOWN]) {
+        if (KEY_STATE[s]) {
             camera.z += .01;
+        }
+
+        if (KEY_STATE[a]) {
+            camera.yrot += .01;
+        }
+
+        if (KEY_STATE[d]) {
+            camera.yrot -= .01;
         }
     }
 
     var gameloop = function() {
         var frame_start = Date.now();
-        //handleKeyStrokes();
+        handleKeyStrokes();
         neverball.update();
         neverball.draw(dinfo);
         var diff = Math.max(1, frame_time - (Date.now() - frame_start));

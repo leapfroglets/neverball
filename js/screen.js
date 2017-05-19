@@ -1,3 +1,10 @@
+function Camera(x, y, z, yrot = 0) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.yrot = yrot;
+}
+
 function Renderer(camera, canvas, context) {
     this.camera = camera;
     this.canvas = canvas;
@@ -16,10 +23,9 @@ function Renderer(camera, canvas, context) {
     }
 
     this.toCamera = function(point) {
-        var cx = point.x - this.camera.x;
-        var cy = point.y - this.camera.y;
-        var cz = point.z - this.camera.z;
-        return {x : cx, y : cy, z : cz};
+        point = {x : point.x - this.camera.x, y : point.y - this.camera.y, z : point.z - this.camera.z};
+        point = rotateY(point, -this.camera.yrot);
+        return {x : point.x, y : point.y, z : point.z};
     }
 
     this.projectToScreen = function(point) {
@@ -50,7 +56,7 @@ function Renderer(camera, canvas, context) {
     var self = this;
 
     var clip = function() {
-        var near_plane = -.5;
+        var near_plane = -.45;
         var nw = [];
         for (var i = 0; i < self.surfaces.length; ++i) {
             var o = self.surfaces[i][0];
