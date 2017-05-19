@@ -63,12 +63,13 @@ function NeverBall(dinfo) {
         dinfo.push();
         dinfo.flush();
 
-        cb.draw(dinfo);
-        dinfo.push(true);
-        cb2.draw(dinfo);
-        dinfo.push(true);
+        //cb.draw(dinfo);
+        //dinfo.push(true);
+        //cb2.draw(dinfo);
+        //dinfo.push(true);
         sphere.push(dinfo);
-        dinfo.push(false, 1.05);
+        //dinfo.push(false, 1.05);
+        dinfo.push(false);
         dinfo.paintersSort();
         dinfo.flush();
     }

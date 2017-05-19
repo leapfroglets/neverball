@@ -34,7 +34,7 @@ function Renderer(camera, canvas, context) {
 
     this.clear = function() {
         this.surfaces = [];
-        this.context.fillStyle = "white";
+        this.context.fillStyle = "silver";
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 

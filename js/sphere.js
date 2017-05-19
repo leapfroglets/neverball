@@ -3,7 +3,7 @@ function Sphere(x, y, z, radius) {
     var z_rot = 0;
     this.pts = [];
     this.origin = createPoint(x, y, z);
-    var steps = 21;
+    var steps = 24;
     
     this.set = function(x, y, z, radius) {
         this.radius = radius;
@@ -45,10 +45,14 @@ function Sphere(x, y, z, radius) {
 
         for (var i = 0; i + 1 < this.pts.length; ++i) {
             for (var j = 0; j + 1 < this.pts[0].length; ++j) {
-                var color = (Math.floor(j / 2)) % 2 == 0 ? "rgba(255, 0, 0, 1)" : "rgba(0, 255, 0, 1)";
+                var color = (Math.floor(j / 4)) % 2 == 0 ? "rgba(0, 0, 0, .5)" : "rgba(255, 255, 255, .5)";
                 var si = i * this.pts[0].length;
                 var sip = si + this.pts[0].length;
-                dinfo.surfaces.push([[si + j, si + j + 1, sip + j + 1, sip + j], color]);
+                if (i == 0) { //top normal fix
+                    dinfo.surfaces.push([[si + j + 1, sip + j + 1, sip + j, si + j], color]);
+                } else {
+                    dinfo.surfaces.push([[si + j, si + j + 1, sip + j + 1, sip + j], color]);
+                }
             }
         }
     }

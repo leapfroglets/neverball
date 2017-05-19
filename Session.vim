@@ -335,12 +335,12 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 57 - ((40 * winheight(0) + 20) / 41)
+let s:l = 48 - ((3 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-57
-normal! 09|
+48
+normal! 066|
 tabedit js/neverball.js
 set splitbelow splitright
 set nosplitbelow
@@ -461,12 +461,12 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 2 - ((1 * winheight(0) + 20) / 41)
+let s:l = 6 - ((5 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-2
-normal! 0
+6
+normal! 019|
 tabedit js/screen.js
 set splitbelow splitright
 set nosplitbelow
@@ -587,11 +587,11 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 41 - ((40 * winheight(0) + 20) / 41)
+let s:l = 1 - ((0 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-41
+1
 normal! 0
 tabedit js/game.js
 set splitbelow splitright
@@ -1475,7 +1475,7 @@ exe s:l
 normal! zt
 7
 normal! 0
-tabnext 2
+tabnext 3
 set stal=1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
