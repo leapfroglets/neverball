@@ -335,11 +335,11 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 102 - ((40 * winheight(0) + 20) / 41)
+let s:l = 41 - ((40 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-102
+41
 normal! 0
 tabedit js/neverball.js
 set splitbelow splitright
@@ -461,12 +461,12 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 35 - ((34 * winheight(0) + 20) / 41)
+let s:l = 21 - ((20 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-35
-normal! 024|
+21
+normal! 05|
 tabedit js/screen.js
 set splitbelow splitright
 set nosplitbelow
@@ -587,12 +587,12 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 103 - ((32 * winheight(0) + 20) / 41)
+let s:l = 98 - ((0 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-103
-normal! 011|
+98
+normal! 033|
 tabedit js/game.js
 set splitbelow splitright
 set nosplitbelow
@@ -713,12 +713,12 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 49 - ((32 * winheight(0) + 20) / 41)
+let s:l = 1 - ((0 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-49
-normal! 010|
+1
+normal! 0
 tabedit js/grid.js
 set splitbelow splitright
 set nosplitbelow
@@ -839,12 +839,12 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 64 - ((32 * winheight(0) + 20) / 41)
+let s:l = 1 - ((0 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-64
-normal! 053|
+1
+normal! 0
 tabedit js/cube.js
 set splitbelow splitright
 set nosplitbelow

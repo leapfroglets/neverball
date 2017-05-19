@@ -3,7 +3,7 @@ function Sphere(x, y, z, radius) {
     var z_rot = 0;
     this.pts = [];
     this.origin = createPoint(x, y, z);
-    var steps = 31;
+    var steps = 21;
     
     this.set = function(x, y, z, radius) {
         this.radius = radius;
@@ -27,7 +27,9 @@ function Sphere(x, y, z, radius) {
     this.vx = 0; 
     this.vy = 0;
     this.vz = 0;
+
     var self = this;
+
     var handleKeyStrokes = function() {
         var vinc = 0.0005;
         if (KEY_STATE[KEY_LEFT]) {

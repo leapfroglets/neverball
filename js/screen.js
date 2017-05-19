@@ -15,11 +15,15 @@ function Renderer(camera, canvas, context) {
         };
     }
 
-    this.projectToScreen = function(point) {
+    this.toCamera = function(point) {
         var cx = point.x - this.camera.x;
         var cy = point.y - this.camera.y;
         var cz = point.z - this.camera.z;
-        return {x : cx / -cz, y : cy / -cz, z : cz};
+        return {x : cx, y : cy, z : cz};
+    }
+
+    this.projectToScreen = function(point) {
+        return {x : point.x / -point.z, y : point.y / -point.z, z : point.z};
     }
 
     this.clear = function() {
@@ -43,7 +47,29 @@ function Renderer(camera, canvas, context) {
         this.pending_surfaces = [];
     }
 
-    this.push = function(cull = false) {
+    var self = this;
+
+    var clip = function() {
+        var near_plane = -.5;
+        var nw = [];
+        for (var i = 0; i < self.surfaces.length; ++i) {
+            var o = self.surfaces[i][0];
+            var minz = self.points[o[0]].z;
+            for (var j = 1; j < o.length; ++j) {
+                minz = Math.min(minz, self.points[o[j]].z);
+            }
+            if (minz < near_plane) {
+                nw.push(self.surfaces[i]);
+            }
+        }
+        self.surfaces = nw;
+    }
+
+    this.push = function(cull = false, scale = 1) {
+        for (var i = 0; i < this.points.length; ++i) {
+            this.points[i] = this.toCamera(this.points[i]);
+        }
+        clip();
         for (var i = 0; i < this.points.length; ++i) {
             this.points[i] = this.projectToScreen(this.points[i]);
         }
@@ -76,9 +102,8 @@ function Renderer(camera, canvas, context) {
             sx /= o.length;
             sy /= o.length;
             var np = [];
-            var sc = 1;
             for (var j = 0; j < o.length; ++j) {
-                np.push({x : (this.points[o[j]].x - sx) * sc + sx, y : sy + (this.points[o[j]].y - sy) * sc, z : this.points[o[j]].z});
+                np.push({x : (this.points[o[j]].x - sx) * scale + sx, y : sy + (this.points[o[j]].y - sy) * scale, z : this.points[o[j]].z});
             }
             this.pending_surfaces.push([np, this.surfaces[i][1]]);
         }

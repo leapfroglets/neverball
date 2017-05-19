@@ -1,6 +1,7 @@
 function NeverBall(dinfo) {
     var floor_y = -.4;
     var cb = new Cube(0, floor_y + .05, -1, .2, .2, .2);
+    var cb2 = new Cube(-.5, floor_y + .05, -2, .2, .2, .2);
 
     var radius = .1;
     var sphere = new Sphere(0, floor_y + radius, -1, radius);
@@ -31,8 +32,10 @@ function NeverBall(dinfo) {
 
         cb.draw(dinfo);
         dinfo.push(true);
+        cb2.draw(dinfo);
+        dinfo.push(true);
         sphere.push(dinfo);
-        dinfo.push(false);
+        dinfo.push(false, 1.05);
         dinfo.paintersSort();
         dinfo.flush();
     }
