@@ -9,25 +9,33 @@ function NeverBall(dinfo) {
 
     var handleKeyStrokes = function() {
         var vinc = 0.0005;
-        var u = vinc * Math.cos(dinfo.camera.yrot + Math.PI);
-        var v = vinc * Math.sin(dinfo.camera.yrot + Math.PI);
-
+        var eff = dinfo.camera.yrot + Math.PI;
         if (KEY_STATE[KEY_UP]) {
+            var u = vinc * Math.cos(eff);
+            var v = vinc * Math.sin(eff);
             sphere.vz += u;
             sphere.vx += v;
         }
 
         if (KEY_STATE[KEY_DOWN]) {
+            var u = vinc * Math.cos(eff);
+            var v = vinc * Math.sin(eff);
             sphere.vz -= u;
             sphere.vx -= v;
         }
 
         if (KEY_STATE[KEY_LEFT]) {
-            dinfo.camera.yrot += .02;
+            var u = vinc * Math.cos(eff + Math.PI / 2);
+            var v = vinc * Math.sin(eff + Math.PI / 2);
+            sphere.vz += u;
+            sphere.vx += v;
         }
 
         if (KEY_STATE[KEY_RIGHT]) {
-            dinfo.camera.yrot -= .02;
+            var u = vinc * Math.cos(eff - Math.PI / 2);
+            var v = vinc * Math.sin(eff - Math.PI / 2);
+            sphere.vz += u;
+            sphere.vx += v;
         }
 
         if (KEY_STATE[KEY_SPACE]) {
@@ -44,6 +52,32 @@ function NeverBall(dinfo) {
             sphere.vy *= -0.88;
         } else {
             sphere.vy -= .001;
+        }
+        var mg = Math.sqrt(sphere.vx * sphere.vx + sphere.vz * sphere.vz);
+        if (mg != 0) {
+            var ref = dinfo.camera.yrot + Math.PI;
+            ref = ref - Math.floor(ref / (2 * Math.PI)) * (2 * Math.PI);
+            if (ref < 0) ref += 2 * Math.PI;
+
+            var dang = Math.atan2(sphere.vx / mg, sphere.vz / mg);
+            if (dang < 0) dang += 2 * Math.PI;
+
+            var u = Math.cos(dinfo.camera.yrot + Math.PI / 2);
+            var v = Math.sin(dinfo.camera.yrot + Math.PI / 2);
+            var dot = sphere.vx * v + sphere.vz * u;
+            if (dot > 0) {
+                if (dang > ref) {
+                    dinfo.camera.yrot -= (2 * Math.PI - (dang - ref)) / 100.0;
+                } else {
+                    dinfo.camera.yrot += (dang - ref) / 100.0;
+                }
+            } else {
+                if (dang > ref) {
+                    dinfo.camera.yrot += (dang - ref) / 100.0;
+                } else {
+                    dinfo.camera.yrot -= (2 * Math.PI - (dang - ref)) / 100.0;
+                }
+            }
         }
         var u = Math.cos(dinfo.camera.yrot + Math.PI);
         var v = Math.sin(dinfo.camera.yrot + Math.PI);
@@ -63,10 +97,10 @@ function NeverBall(dinfo) {
         dinfo.push();
         dinfo.flush();
 
-        //cb.draw(dinfo);
-        //dinfo.push(true);
-        //cb2.draw(dinfo);
-        //dinfo.push(true);
+        cb.draw(dinfo);
+        dinfo.push(true);
+        cb2.draw(dinfo);
+        dinfo.push(true);
         sphere.push(dinfo);
         //dinfo.push(false, 1.05);
         dinfo.push(false);
