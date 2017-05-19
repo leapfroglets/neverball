@@ -54,7 +54,7 @@ function NeverBall(dinfo) {
             sphere.vy -= .001;
         }
         var mg = Math.sqrt(sphere.vx * sphere.vx + sphere.vz * sphere.vz);
-        if (mg != 0) {
+        if (mg > 0) {
             var ref = dinfo.camera.yrot + Math.PI;
             ref = ref - Math.floor(ref / (2 * Math.PI)) * (2 * Math.PI);
             if (ref < 0) ref += 2 * Math.PI;
@@ -65,24 +65,26 @@ function NeverBall(dinfo) {
             var u = Math.cos(dinfo.camera.yrot + Math.PI / 2);
             var v = Math.sin(dinfo.camera.yrot + Math.PI / 2);
             var dot = sphere.vx * v + sphere.vz * u;
+            var df = mg * 1.5;
             if (dot > 0) {
                 if (dang > ref) {
-                    dinfo.camera.yrot -= (2 * Math.PI - (dang - ref)) / 100.0;
+                    dinfo.camera.yrot -= (2 * Math.PI - (dang - ref)) * df;
                 } else {
-                    dinfo.camera.yrot += (dang - ref) / 100.0;
+                    dinfo.camera.yrot += (dang - ref) * df;
                 }
-            } else {
+            } else if (dot < 0) {
                 if (dang > ref) {
-                    dinfo.camera.yrot += (dang - ref) / 100.0;
+                    dinfo.camera.yrot += (dang - ref) * df;
                 } else {
-                    dinfo.camera.yrot -= (2 * Math.PI - (dang - ref)) / 100.0;
+                    dinfo.camera.yrot += (2 * Math.PI - (ref - dang)) * df;
                 }
             }
         }
         var u = Math.cos(dinfo.camera.yrot + Math.PI);
         var v = Math.sin(dinfo.camera.yrot + Math.PI);
-        var dx = sphere.origin.x - v * 1 ;
-        var dz = sphere.origin.z - u * 1 ;
+        var gap = .8;
+        var dx = sphere.origin.x - v * gap ;
+        var dz = sphere.origin.z - u * gap ;
         dinfo.camera.x += (dx - dinfo.camera.x) / 10;
         dinfo.camera.z += (dz - dinfo.camera.z) / 10;
     }

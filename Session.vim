@@ -461,12 +461,12 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 81 - ((32 * winheight(0) + 20) / 41)
+let s:l = 90 - ((18 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-81
-normal! 09|
+90
+normal! 05|
 tabedit js/screen.js
 set splitbelow splitright
 set nosplitbelow
