@@ -64,7 +64,7 @@ function Grid(x, y, z, width, breadth) {
                 var color = (i + j) % 2 == 0 ? "silver" : "#299807";
                 var si = i * steps;
                 var sip = si + steps;
-                dinfo.surfaces.push([[si + j, si + j + 1, sip + j + 1, sip + j], color]);
+                dinfo.surfaces.push([[si + j, si + j + 1, sip + j + 1, sip + j], color, 1]);
             }
         }
     }

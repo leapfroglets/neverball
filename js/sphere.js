@@ -48,12 +48,13 @@ function Sphere(x, y, z, radius) {
                 var color = (Math.floor(j / 4)) % 2 == 0 ? "rgba(0, 0, 0, .5)" : "rgba(255, 255, 255, .5)";
                 var si = i * this.pts[0].length;
                 var sip = si + this.pts[0].length;
+                var scale = 1;
                 if (i == 0) { //top normal fix
-                    dinfo.surfaces.push([[si + j, sip + j + 1, sip + j], color]);
+                    dinfo.surfaces.push([[si + j, sip + j + 1, sip + j], color, scale]);
                 } else if (i + 2 == this.pts.length) {
-                    dinfo.surfaces.push([[si + j, si + j + 1, sip + j], color]);
+                    dinfo.surfaces.push([[si + j, si + j + 1, sip + j], color, scale]);
                 } else {
-                    dinfo.surfaces.push([[si + j, si + j + 1, sip + j + 1, sip + j], color]);
+                    dinfo.surfaces.push([[si + j, si + j + 1, sip + j + 1, sip + j], color, scale]);
                 }
             }
         }

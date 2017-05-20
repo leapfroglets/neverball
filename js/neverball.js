@@ -4,6 +4,12 @@ function NeverBall(dinfo) {
     var cb2 = new Cube(-.5, floor_y + .1, -2, .2, .2, .2);
     var cb3 = new Cube(-1, floor_y + .1, -1, .2, 2, .2);
     var cube_list = [cb, cb2, cb3];
+    //var cube_list = [];
+    var coin_radius = .05;
+    var coins = [
+        new Coin(0, floor_y + 1 * coin_radius, 1, coin_radius, .01),
+        new Coin(0, floor_y + 1 * coin_radius, 1.5, coin_radius, .01),
+    ];
 
     var radius = .1;
     var sphere = new Sphere(0, floor_y + radius, -1, radius);
@@ -150,6 +156,10 @@ function NeverBall(dinfo) {
         for (var i = 0; i < cube_list.length; ++i) {
             cube_list[i].update();
         }
+
+        for (var i = 0; i < coins.length; ++i) {
+            coins[i].update();
+        }
         sphere.update();
         if (sphere.origin.y - sphere.radius + sphere.vy < floor_y) {
             sphere.origin.y = floor_y + sphere.radius;
@@ -194,7 +204,7 @@ function NeverBall(dinfo) {
         }
         var u = Math.cos(dinfo.camera.yrot + Math.PI);
         var v = Math.sin(dinfo.camera.yrot + Math.PI);
-        var gap = .8;
+        var gap = .6;
         var dx = sphere.origin.x - v * gap ;
         var dz = sphere.origin.z - u * gap ;
         dinfo.camera.x += (dx - dinfo.camera.x) / 10;
@@ -213,6 +223,11 @@ function NeverBall(dinfo) {
 
         for (var i = 0; i < cube_list.length; ++i) {
             cube_list[i].draw(dinfo);
+            dinfo.push(true);
+        }
+
+        for (var i = 0; i < coins.length; ++i) {
+            coins[i].push(dinfo);
             dinfo.push(true);
         }
         sphere.push(dinfo);

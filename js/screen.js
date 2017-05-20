@@ -83,7 +83,7 @@ function Renderer(camera, canvas, context) {
                 continue;
             }
             if (o.length == 4) {
-                var ns = [[[o[0], o[1], o[2]], self.surfaces[i][1]], [[o[2], o[3], o[0]], self.surfaces[i][1]]];
+                var ns = [[[o[0], o[1], o[2]], self.surfaces[i][1], self.surfaces[i][2]], [[o[2], o[3], o[0]], self.surfaces[i][1], self.surfaces[i][2]]];
                 for (var j = 0; j < 2; ++j) {
                     var minz = self.points[ns[j][0][0]].z;
                     var maxz = self.points[ns[j][0][0]].z;
@@ -126,6 +126,8 @@ function Renderer(camera, canvas, context) {
                 b = tmp;
                 w = 1 - w;
             }
+            var scale = 1;
+            //var scale = 1.00042;
             if (self.points[s[b]].z > near_plane) {
                 var ua = (near_plane - self.points[s[c]].z) / (self.points[s[a]].z - self.points[s[c]].z);
                 var ub = (near_plane - self.points[s[c]].z) / (self.points[s[b]].z - self.points[s[c]].z);
@@ -138,6 +140,7 @@ function Renderer(camera, canvas, context) {
                 var l = self.points.length - 1;
                 s[a] = l - 1;
                 s[b] = l;
+                toclip[i][2] = scale;
                 self.surfaces.push(toclip[i]);
             } else {
                 var ub = (near_plane - self.points[s[a]].z) / (self.points[s[b]].z - self.points[s[a]].z);
@@ -151,12 +154,13 @@ function Renderer(camera, canvas, context) {
                 self.points.push(pc);
                 var l = self.points.length - 1;
                 var col = toclip[i][1];
+                //var scale = toclip[i][2];
                 if (w == 0) {
-                    self.surfaces.push([[l - 1, s[b], s[c]], col]);
-                    self.surfaces.push([[s[c], l, l - 1], col]);
+                    self.surfaces.push([[l - 1, s[b], s[c]], col, scale]);
+                    self.surfaces.push([[s[c], l, l - 1], col, scale]);
                 } else {
-                    self.surfaces.push([[l - 1, s[c], s[b]], col]);
-                    self.surfaces.push([[s[c], l - 1, l], col]);
+                    self.surfaces.push([[l - 1, s[c], s[b]], col, scale]);
+                    self.surfaces.push([[s[c], l - 1, l], col, scale]);
                 }
             }
         }
@@ -166,7 +170,7 @@ function Renderer(camera, canvas, context) {
         }
     }
 
-    this.push = function(cull = false, scale = 1) {
+    this.push = function(cull = false) {
         for (var i = 0; i < this.points.length; ++i) {
             this.points[i] = this.toCamera(this.points[i]);
         }
@@ -203,10 +207,11 @@ function Renderer(camera, canvas, context) {
             sx /= o.length;
             sy /= o.length;
             var np = [];
+            var scale = this.surfaces[i][2];
             for (var j = 0; j < o.length; ++j) {
                 np.push({x : (this.points[o[j]].x - sx) * scale + sx, y : sy + (this.points[o[j]].y - sy) * scale, z : this.points[o[j]].z});
             }
-            this.pending_surfaces.push([np, this.surfaces[i][1]]);
+            this.pending_surfaces.push([np, this.surfaces[i][1], this.surfaces[i][2]]);
         }
         this.surfaces = [];
         this.points = [];
