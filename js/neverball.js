@@ -2,13 +2,15 @@ function NeverBall(dinfo) {
     var floor_y = -.4;
     var cb = new Cube(0, floor_y + .1, -1, .2, .2, .2);
     var cb2 = new Cube(-.5, floor_y + .1, -2, .2, .2, .2);
+    var cb3 = new Cube(-1, floor_y + .1, -1, .2, 2, .2);
+    var cube_list = [cb, cb2, cb3];
 
     var radius = .1;
     var sphere = new Sphere(0, floor_y + radius, -1, radius);
-    var grid = new Grid(0, floor_y, -1, 2, 3.5);
+    var grid = new Grid(0, floor_y, 0, 6, 6);
 
     var handleKeyStrokes = function() {
-        var vinc = 0.0005;
+        var vinc = 0.0001;
         var eff = dinfo.camera.yrot + Math.PI;
         if (KEY_STATE[KEY_UP]) {
             var u = vinc * Math.cos(eff);
@@ -43,9 +45,111 @@ function NeverBall(dinfo) {
         }
     }
 
+    function checkColl(poly, circle) {
+        var N = poly.length;
+        var minprj = 10000000000.0;
+        var axis = -1;
+        //i + 1, because there are four points and the last side
+        //is ignored
+        for (var i = 0; i + 1 < poly.length; ++i) {
+            var pplane = {x : poly[i + 1].x - poly[i].x, z : poly[i + 1].z - poly[i].z};
+            var mg = Math.sqrt(pplane.x * pplane.x + pplane.z * pplane.z);
+            if (mg == 0) mg = 1;
+            pplane.x /= mg;
+            pplane.z /= mg;
+            var minp = 1000000000.0;
+            var maxp = -minp;
+            for (var j = 0; j < N; ++j) {
+                var p1 = poly[j].x * pplane.x + poly[j].z * pplane.z;
+                minp = Math.min(minp, p1);
+                maxp = Math.max(maxp, p1);
+            }
+
+            var midp = circle.x * pplane.x + circle.z * pplane.z;
+            var l1 = midp - circle.r;
+            var l2 = midp + circle.r;
+            if (l1 >= maxp || l2 <= minp) return [0];
+            var gp = Math.min(l2, maxp) - Math.max(l1, minp);
+            if (gp < minprj) {
+                minprj = gp;
+                axis = pplane;
+            }
+        }
+
+        var dmin = 1000000000000.0;
+        var sel = 0;
+        for (var i = 0; i < N; ++i) {
+            var dx = circle.x - poly[i].x;
+            var dz = circle.z - poly[i].z;
+            var dist = dx * dx + dz * dz;
+            if (dist < dmin) {
+                dmin = dist;
+                sel = i;
+            }
+        }
+
+        var pplane = {x : circle.x - poly[sel].x, z : circle.z - poly[sel].z};
+        var mg = Math.sqrt(pplane.x * pplane.x + pplane.z * pplane.z);
+        if (mg == 0) mg = 1;
+        pplane.x /= mg;
+        pplane.z /= mg;
+        var minp = 1000000000.0;
+        var maxp = -minp;
+        for (var i = 0; i < N; ++i) {
+            var p1 = poly[i].x * pplane.x + poly[i].z * pplane.z;
+            minp = Math.min(minp, p1);
+            maxp = Math.max(maxp, p1);
+        }
+
+        var midp = circle.x * pplane.x + circle.z * pplane.z;
+        var l1 = midp - circle.r;
+        var l2 = midp + circle.r;
+        if (l1 >= maxp || l2 <= minp) return [0];
+
+        var gp = Math.min(l2, maxp) - Math.max(l1, minp);
+        if (gp < minprj) {
+            minprj = gp;
+            axis = pplane;
+        }
+        //if (minprj < 0.05) return [0];
+        console.log('collision', minprj);
+        return [1, axis, minprj];
+    }
+
+    var checkCollision = function() {
+        var circle = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
+        for (var i = 0; i < cube_list.length; ++i) {
+            var pts = cube_list[i].getPoints();
+            var c = checkColl(pts, circle);
+            if (c[0] == 0) continue;
+            var sx = 0, sz = 0;
+            for (var j = 0; j < pts.length; ++j) {
+                sx += pts[j].x;
+                sz += pts[j].z;
+            }
+            sx /= pts.length;
+            sz /= pts.length;
+            var dx = circle.x - sx;
+            var dz = circle.z - sz;
+            if (dx * c[1].x + dz * c[1].z < 0) {
+                c[1].x *= -1;
+                c[1].z *= -1;
+            }
+            var dot = sphere.vx * c[1].x + sphere.vz * c[1].z;
+            sphere.vx -= 2 * dot * c[1].x;
+            sphere.vz -= 2 * dot * c[1].z;
+            //sphere.vx *= 0.9;
+            //sphere.vz *= 0.9;
+            sphere.origin.x += c[2] * c[1].x;
+            sphere.origin.z += c[2] * c[1].z;
+        }
+    }
+
     this.update = function() {
         handleKeyStrokes();
-        cb.update();
+        for (var i = 0; i < cube_list.length; ++i) {
+            cube_list[i].update();
+        }
         sphere.update();
         if (sphere.origin.y - sphere.radius + sphere.vy < floor_y) {
             sphere.origin.y = floor_y + sphere.radius;
@@ -53,19 +157,27 @@ function NeverBall(dinfo) {
         } else {
             sphere.vy -= .001;
         }
+        checkCollision();
         var mg = Math.sqrt(sphere.vx * sphere.vx + sphere.vz * sphere.vz);
         if (mg > 0) {
             var ref = dinfo.camera.yrot + Math.PI;
             ref = ref - Math.floor(ref / (2 * Math.PI)) * (2 * Math.PI);
             if (ref < 0) ref += 2 * Math.PI;
-
-            var dang = Math.atan2(sphere.vx / mg, sphere.vz / mg);
+            var xnorm = sphere.vx / mg;
+            var znorm = sphere.vz / mg;
+            var dang = Math.atan2(xnorm, znorm);
             if (dang < 0) dang += 2 * Math.PI;
 
             var u = Math.cos(dinfo.camera.yrot + Math.PI / 2);
             var v = Math.sin(dinfo.camera.yrot + Math.PI / 2);
             var dot = sphere.vx * v + sphere.vz * u;
-            var df = mg * 1.5;
+
+            var u2 = Math.cos(dinfo.camera.yrot + Math.PI);
+            var v2 = Math.sin(dinfo.camera.yrot + Math.PI);
+            var dt = u2 * znorm + v2 * xnorm;
+            var df = dt > .06 ? mg * 1.5 : mg / 2;
+
+            var dot = sphere.vx * v + sphere.vz * u;
             if (dot > 0) {
                 if (dang > ref) {
                     dinfo.camera.yrot -= (2 * Math.PI - (dang - ref)) * df;
@@ -99,10 +211,10 @@ function NeverBall(dinfo) {
         dinfo.push();
         dinfo.flush();
 
-        cb.draw(dinfo);
-        dinfo.push(true);
-        cb2.draw(dinfo);
-        dinfo.push(true);
+        for (var i = 0; i < cube_list.length; ++i) {
+            cube_list[i].draw(dinfo);
+            dinfo.push(true);
+        }
         sphere.push(dinfo);
         //dinfo.push(false, 1.05);
         dinfo.push(false);

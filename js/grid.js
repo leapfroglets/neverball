@@ -61,7 +61,7 @@ function Grid(x, y, z, width, breadth) {
 
         for (var i = 0; i + 1 < steps; ++i) {
             for (var j = 0; j + 1 < steps; ++j) {
-                var color = (i + j) % 2 == 0 ? "black" : "rgb(100, 100, 100)";
+                var color = (i + j) % 2 == 0 ? "silver" : "#299807";
                 var si = i * steps;
                 var sip = si + steps;
                 dinfo.surfaces.push([[si + j, si + j + 1, sip + j + 1, sip + j], color]);

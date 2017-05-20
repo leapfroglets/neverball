@@ -49,7 +49,9 @@ function Sphere(x, y, z, radius) {
                 var si = i * this.pts[0].length;
                 var sip = si + this.pts[0].length;
                 if (i == 0) { //top normal fix
-                    dinfo.surfaces.push([[si + j + 1, sip + j + 1, sip + j, si + j], color]);
+                    dinfo.surfaces.push([[si + j, sip + j + 1, sip + j], color]);
+                } else if (i + 2 == this.pts.length) {
+                    dinfo.surfaces.push([[si + j, si + j + 1, sip + j], color]);
                 } else {
                     dinfo.surfaces.push([[si + j, si + j + 1, sip + j + 1, sip + j], color]);
                 }
@@ -76,9 +78,9 @@ function Sphere(x, y, z, radius) {
             }
         }
 
-        this.vx *= 0.98;
+        //this.vx *= 0.98;
         this.vy *= 0.98;
-        this.vz *= 0.98;
+        //this.vz *= 0.98;
 
     }
 

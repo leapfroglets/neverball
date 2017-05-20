@@ -67,4 +67,13 @@ function Cube(x, y, z, width, breadth, height) {
         //rot += .01;
     }
 
+    this.getPoints = function() {
+        var res = [];
+        var idx = [0, 4, 7, 3];
+        for (var i = 0; i < 4; ++i) {
+            res.push({x : this.pts[idx[i]].x + origin.x, z : this.pts[idx[i]].z + origin.z});
+        }
+        return res;
+    }
+
 }

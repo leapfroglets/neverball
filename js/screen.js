@@ -34,7 +34,7 @@ function Renderer(camera, canvas, context) {
 
     this.clear = function() {
         this.surfaces = [];
-        this.context.fillStyle = "silver";
+        this.context.fillStyle = "white";
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
@@ -56,7 +56,7 @@ function Renderer(camera, canvas, context) {
     var self = this;
 
     var clip = function() {
-        var near_plane = -.45;
+        var near_plane = -.01;
         var nw = [];
         for (var i = 0; i < self.surfaces.length; ++i) {
             var o = self.surfaces[i][0];
@@ -69,6 +69,101 @@ function Renderer(camera, canvas, context) {
             }
         }
         self.surfaces = nw;
+        var again = 0;
+        var toclip = [];
+        var nottoclip = [];
+        for (var i = 0; i < self.surfaces.length; ++i) {
+            var o = self.surfaces[i][0];
+            var mxz = self.points[o[0]].z;
+            for (var j = 1; j < o.length; ++j) {
+                mxz = Math.max(mxz, self.points[o[j]].z);
+            }
+            if (mxz < near_plane) {
+                nottoclip.push(self.surfaces[i]);
+                continue;
+            }
+            if (o.length == 4) {
+                var ns = [[[o[0], o[1], o[2]], self.surfaces[i][1]], [[o[2], o[3], o[0]], self.surfaces[i][1]]];
+                for (var j = 0; j < 2; ++j) {
+                    var minz = self.points[ns[j][0][0]].z;
+                    var maxz = self.points[ns[j][0][0]].z;
+                    for (var k = 1; k < 3; ++k) {
+                        var z = self.points[ns[j][0][k]].z;
+                        minz = Math.min(minz, z);
+                        maxz = Math.max(maxz, z);
+                    }
+                    if (minz < near_plane) {
+                        if (maxz < near_plane) nottoclip.push(ns[j]);
+                        else {
+                            toclip.push(ns[j]);
+                        }
+                    }
+                }
+            } else {
+                toclip.push(self.surfaces[i]);
+            }
+        }
+        self.surfaces = [];
+        for (var i = 0; i < toclip.length; ++i) {
+            var s = toclip[i][0];
+            var a = 0, b = 1, c = 2;
+            var w = 0;
+            if (self.points[s[a]].z < self.points[s[b]].z) {
+                var tmp = a;
+                a = b;
+                b = tmp;
+                w = 1 - w;
+            }
+            if (self.points[s[b]].z < self.points[s[c]].z) {
+                var tmp = b;
+                b = c;
+                c = tmp;
+                w = 1 - w;
+            }
+            if (self.points[s[a]].z < self.points[s[b]].z) {
+                var tmp = a;
+                a = b;
+                b = tmp;
+                w = 1 - w;
+            }
+            if (self.points[s[b]].z > near_plane) {
+                var ua = (near_plane - self.points[s[c]].z) / (self.points[s[a]].z - self.points[s[c]].z);
+                var ub = (near_plane - self.points[s[c]].z) / (self.points[s[b]].z - self.points[s[c]].z);
+                var da = sub(self.points[s[a]], self.points[s[c]]);
+                var db = sub(self.points[s[b]], self.points[s[c]]);
+                var pa = createPoint(self.points[s[c]].x + ua * da.x, self.points[s[c]].y + ua * da.y, near_plane);
+                var pb = createPoint(self.points[s[c]].x + ub * db.x, self.points[s[c]].y + ub * db.y, near_plane);
+                self.points.push(pa);
+                self.points.push(pb);
+                var l = self.points.length - 1;
+                s[a] = l - 1;
+                s[b] = l;
+                self.surfaces.push(toclip[i]);
+            } else {
+                var ub = (near_plane - self.points[s[a]].z) / (self.points[s[b]].z - self.points[s[a]].z);
+                var uc = (near_plane - self.points[s[a]].z) / (self.points[s[c]].z - self.points[s[a]].z);
+                var db = sub(self.points[s[b]], self.points[s[a]]);
+                var dc = sub(self.points[s[c]], self.points[s[a]]);
+                var pb = createPoint(self.points[s[a]].x + ub * db.x, self.points[s[a]].y + ub * db.y, self.points[s[a]].z + ub * db.z);
+                //console.log(pb.x - self.points[s[a]].x, pb.y - self.points[s[a]].y, pb.z - self.points[s[a]].z);
+                var pc = createPoint(self.points[s[a]].x + uc * dc.x, self.points[s[a]].y + uc * dc.y, near_plane);
+                self.points.push(pb);
+                self.points.push(pc);
+                var l = self.points.length - 1;
+                var col = toclip[i][1];
+                if (w == 0) {
+                    self.surfaces.push([[l - 1, s[b], s[c]], col]);
+                    self.surfaces.push([[s[c], l, l - 1], col]);
+                } else {
+                    self.surfaces.push([[l - 1, s[c], s[b]], col]);
+                    self.surfaces.push([[s[c], l - 1, l], col]);
+                }
+            }
+        }
+
+        for (var i = 0; i < nottoclip.length; ++i) {
+            self.surfaces.push(nottoclip[i]);
+        }
     }
 
     this.push = function(cull = false, scale = 1) {
