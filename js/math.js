@@ -32,3 +32,7 @@ function rotateZ(point, ang) {
     var sin = Math.sin(ang);
     return createPoint(cos * point.x - sin * point.y, sin * point.x + cos * point.y, point.z);
 }
+
+function dup(point) {
+    return createPoint(point.x, point.y, point.z);
+}

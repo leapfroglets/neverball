@@ -3,17 +3,19 @@ function NeverBall(dinfo) {
     var cb = new Cube(0, floor_y + .1, -1, .2, .2, .2);
     var cb2 = new Cube(-.5, floor_y + .1, -2, .2, .2, .2);
     var cb3 = new Cube(-1, floor_y + .1, -1, .2, 2, .2);
-    var cube_list = [cb, cb2, cb3];
+    var cube_list = [];
     //var cube_list = [];
     var coin_radius = .05;
     var coins = [
-        new Coin(0, floor_y + 1 * coin_radius, 1, coin_radius, .01),
-        new Coin(0, floor_y + 1 * coin_radius, 1.5, coin_radius, .01),
+        new Coin(0, floor_y + 2 * coin_radius, 1, coin_radius, .01),
+        new Coin(0, floor_y + 2 * coin_radius, 1.5, coin_radius, .01),
     ];
 
     var radius = .1;
     var sphere = new Sphere(0, floor_y + radius, -1, radius);
     var grid = new Grid(0, floor_y, 0, 6, 6);
+
+    var self = this;
 
     var handleKeyStrokes = function() {
         var vinc = 0.0001;
@@ -149,6 +151,13 @@ function NeverBall(dinfo) {
             sphere.origin.x += c[2] * c[1].x;
             sphere.origin.z += c[2] * c[1].z;
         }
+        for (var i = 0; i < coins.length; ++i) {
+            if (coins[i].destroyed) continue;
+            var pts = coins[i].getPoints();
+            var c = checkColl(pts, circle);
+            if (c[0] == 0) continue;
+            coins[i].destroyed = 1;
+        }
     }
 
     this.update = function() {
@@ -211,15 +220,47 @@ function NeverBall(dinfo) {
         dinfo.camera.z += (dz - dinfo.camera.z) / 10;
     }
 
+    var floor = [];
+
+    var lmanager = new LevelManager();
+
+    var loadFloor = function() {
+        var m = lmanager.load("mylevel");
+        var w = .5;
+        floor = [];
+        for (var i = 0; i < m.meta.rows; ++i) {
+            for (var j = 0; j < m.meta.cols; ++j) {
+                var x = j * w;
+                var y = floor_y;
+                var z = i * w;
+                if ("color" in m.map[i][j]) {
+                    floor.push(new Tile(x, y, z, w, w, m.map[i][j]["color"]));
+                }
+            }
+        }
+    }
+
+    loadFloor();
+
+    var drawFloor = function() {
+        //grid.push(dinfo);
+        //dinfo.push(false);
+        //dinfo.flush();
+        //return;
+        for (var i = 0; i < floor.length; ++i) {
+            floor[i].push(dinfo);
+            dinfo.push(false);
+        }
+        dinfo.flush();
+    }
+
     this.draw = function() {
         //first clear the renderer
         dinfo.clear();
 
         //first draw the grid which is the bottom most
         //then draw other surfaces on top 
-        grid.push(dinfo);
-        dinfo.push();
-        dinfo.flush();
+        drawFloor();
 
         for (var i = 0; i < cube_list.length; ++i) {
             cube_list[i].draw(dinfo);

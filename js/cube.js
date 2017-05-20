@@ -1,3 +1,34 @@
+function Tile(x, y, z, width, breadth, color = "blue") {
+    this.pts = [];
+    var origin = createPoint(x, y, z);
+    this.set = function(x, y, z, width, breadth) {
+        var sx = -width / 2; 
+        var sy = 0;
+        var sz = breadth / 2;
+        this.pts[0] = createPoint(sx, sy, sz);
+        this.pts[1] = createPoint(sx, sy, sz - breadth);
+        this.pts[2] = createPoint(sx + width, sy, sz - breadth);
+        this.pts[3] = createPoint(sx + width, sy, sz);
+        //console.log(this.pts[0]);
+    }
+
+    this.set(x, y, z, width, breadth);
+
+    this.push = function(dinfo) {
+        for (var i = 0; i < 4; ++i) {
+            var pt = dup(this.pts[i]);
+            pt.x += origin.x;
+            pt.y += origin.y;
+            pt.z += origin.z;
+            dinfo.points.push(pt);
+        }
+
+        dinfo.surfaces.push([[0, 1, 2, 3], color, 1]);
+    }
+
+
+}
+
 function Cube(x, y, z, width, breadth, height) {
     var rot = 0;
     this.pts = [];
