@@ -230,7 +230,9 @@ function NeverBall(dinfo) {
         var w = .5;
         floor = [];
         coins = [];
+        var cl = [];
         for (var i = 0; i < m.meta.rows; ++i) {
+            cl[i] = [];
             for (var j = 0; j < m.meta.cols; ++j) {
                 var x = j * w;
                 var y = floor_y;
@@ -245,8 +247,19 @@ function NeverBall(dinfo) {
                     var height = .1;
                     var w2 = w * 1;
                     var cb = new Cube(x, y + height / 2, z, w2, w2, height);
+                    cl[i][j] = cb;
                     cube_list.push(cb);
+                    var cur = cube_list.length - 1;
+                    if (j > 0 && 'cube' in m.map[i][j - 1]) {
+                        cb.mask |= SIDE_LEFT;
+                        cube_list[cur - 1].mask |= SIDE_RIGHT;
+                    }
+                    if (i > 0 && 'cube' in m.map[i - 1][j]) {
+                        cb.mask |= SIDE_TOP;
+                        cl[i - 1][j].mask |= SIDE_BOTTOM;
+                    }
                 }
+
             }
         }
     }

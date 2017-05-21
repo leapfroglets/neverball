@@ -1,3 +1,4 @@
+
 function Tile(x, y, z, width, breadth, color = "blue") {
     this.pts = [];
     var origin = createPoint(x, y, z);
@@ -29,9 +30,15 @@ function Tile(x, y, z, width, breadth, color = "blue") {
 
 }
 
+var SIDE_LEFT = 1;
+var SIDE_RIGHT = 2;
+var SIDE_TOP = 4;
+var SIDE_BOTTOM = 8;
+
 function Cube(x, y, z, width, breadth, height) {
     var rot = 0;
     this.pts = [];
+    this.mask = 0;
     var origin = createPoint(x, y, z);
     this.set = function(x, y, z, width, breadth, height) {
         var sx = -width / 2; 
@@ -87,10 +94,10 @@ function Cube(x, y, z, width, breadth, height) {
             dinfo.points.push(pt);
         }
 
-        dinfo.surfaces.push([[0, 1, 2, 3], "#D2691E", 1]);
-        dinfo.surfaces.push([[7, 6, 5, 4], "#F4A460", 1]);
-        dinfo.surfaces.push([[2, 6, 7, 3], "#CD853F", 1]);
-        dinfo.surfaces.push([[4, 5, 1, 0], "#A0522D", 1]);
+        if (!(this.mask & SIDE_BOTTOM)) dinfo.surfaces.push([[0, 1, 2, 3], "#D2691E", 1]);
+        if (!(this.mask & SIDE_TOP)) dinfo.surfaces.push([[7, 6, 5, 4], "#F4A460", 1]);
+        if (!(this.mask & SIDE_RIGHT)) dinfo.surfaces.push([[2, 6, 7, 3], "#CD853F", 1]);
+        if (!(this.mask & SIDE_LEFT)) dinfo.surfaces.push([[4, 5, 1, 0], "#A0522D", 1]);
         //top surface
         dinfo.surfaces.push([[2, 1, 5, 6], "#8B4513", 1, 1]);
     }
