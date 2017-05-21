@@ -340,11 +340,11 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 20) / 41)
+let s:l = 88 - ((40 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
+88
 normal! 0
 tabedit js/neverball.js
 set splitbelow splitright
@@ -466,12 +466,12 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 181 - ((40 * winheight(0) + 20) / 41)
+let s:l = 174 - ((14 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-181
-normal! 013|
+174
+normal! 041|
 tabedit js/coin.js
 set splitbelow splitright
 set nosplitbelow

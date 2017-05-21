@@ -130,13 +130,6 @@ function NeverBall(dinfo) {
             spts.push(pts);
             var c = checkColl(pts, circle);
             if (c[0] == 0) continue;
-            collisions.push([i, c[1], c[2]]);
-        }
-
-        for (var i = 0; i < collisions.length; ++i) {
-            var info = collisions[i]; //collision info
-            var obj_id = info[0];
-            var pts = spts[obj_id];
             var sx = 0, sz = 0;
             for (var j = 0; j < pts.length; ++j) {
                 sx += pts[j].x;
@@ -146,11 +139,18 @@ function NeverBall(dinfo) {
             sz /= pts.length;
             var dx = circle.x - sx;
             var dz = circle.z - sz;
-            if (dx * info[1].x + dz * info[1].z < 0) {
-                info[1].x *= -1;
-                info[1].z *= -1;
+            if (dx * c[1].x + dz * c[1].z < 0) {
+                c[1].x *= -1;
+                c[1].z *= -1;
             }
+            collisions.push([i, c[1], c[2]]);
+        }
 
+        var chosen = -1;
+        for (var i = 0; i < collisions.length; ++i) {
+            var info = collisions[i]; //collision info
+            var obj_id = info[0];
+            var pts = spts[obj_id];
             var circle2 = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
             circle2.x += info[2] * info[1].x;
             circle2.z += info[2] * info[1].z;
@@ -164,15 +164,30 @@ function NeverBall(dinfo) {
             }
 
             if (ok) {
-                var dot = sphere.vx * info[1].x + sphere.vz * info[1].z;
-                sphere.vx -= 2 * dot * info[1].x;
-                sphere.vz -= 2 * dot * info[1].z;
-                //sphere.vx *= 0.9;
-                //sphere.vz *= 0.9;
+                chosen = i;
+                break;
+            }
+        }
+        if (collisions.length) {
+            var found = chosen != -1;
+            if (!found) {
+                console.log("man o man");
+                chosen = 0;
+            } 
+            var info = collisions[chosen]; //collision info
+            if (found) {
                 sphere.origin.x += info[2] * info[1].x;
                 sphere.origin.z += info[2] * info[1].z;
-                break;
-            } else console.log("not ok");
+            } else {
+                //undo
+                sphere.origin.x -= sphere.vx;
+                sphere.origin.y -= sphere.vz;
+            }
+            var dot = sphere.vx * info[1].x + sphere.vz * info[1].z;
+            sphere.vx -= 2 * dot * info[1].x;
+            sphere.vz -= 2 * dot * info[1].z;
+            //sphere.vx *= 0.9;
+            //sphere.vz *= 0.9;
         }
         //coins part
         for (var i = 0; i < coins.length; ++i) {
