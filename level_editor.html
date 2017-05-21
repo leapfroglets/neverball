@@ -1,11 +1,34 @@
 <html>
+    <head>
+        <link rel='stylesheet' type='text/css' href='css/leveleditor.css'>
+    </head>
     <body>
-        <div id='level_map'>
+        <div id='level_editor'>
+            <div class='header'>
+                <span>Save Level As</span>
+                <input class='save_level_name' value="mylevel">
+                <button class='btn save_btn'>
+                    SAVE
+                </button>
+            </div>
+            <div class='lbody'>
+                <div class='levels_list'>
+                    <h2>SAVED LEVELS</h2>
+                    <ul>
+                    </ul>
+                </div>
+                <div class='editor'>
+                    <div class='obj grid'>
+                    </div>
+                    <div class='obj toolbox'>
+                    </div>
+                </div>
+            </div>
         </div>
         <script src='js/levelmanager.js'></script>
         <script src='js/editor.js'></script>
     <script>
-new LevelEditor('level_map').init();
+new LevelEditor('level_editor').init();
     </script>
     </body>
 </html>

@@ -1,0 +1,76 @@
+* {
+    margin:0px;
+    padding:0px;
+    font-family:Monospace;
+}
+.editor {
+    margin-top:5px;
+}
+
+.header > div {
+    display:inline-block;
+}
+
+.header {
+    text-align:center;
+}
+
+.obj {
+    display:inline-block;
+    vertical-align:top;
+}
+
+.levels_list ul {
+    list-style:none;
+}
+
+.levels_list ul li {
+    background:skyblue;
+    padding:5px;
+    cursor:pointer;
+}
+
+.levels_list ul li:hover {
+    background:grey;
+    color:white;
+}
+
+.lbody > div {
+    display:inline-block;
+    vertical-align:top;
+}
+
+.lbody {
+    text-align:center;
+}
+
+#level_editor {
+}
+
+.btn {
+    cursor:pointer;
+    border:none;
+    padding-top:5px;
+    padding-bottom:5px;
+    padding-left:15px;
+    padding-right:15px;
+    background:grey;
+    color:white;
+}
+
+.btn:hover {
+    background:silver;
+}
+
+.coin {
+    margin:0 auto;
+    width:40px;
+    height:40px;
+    background:orange;
+    border-radius:50%;
+    cursor:pointer;
+}
+
+.coin:hover {
+    background:grey;
+}

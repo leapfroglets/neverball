@@ -6,9 +6,12 @@ function LevelEditor(id) {
     var self = this;
     var tools = [];
     var COLOR_FILL = 1;
+    var DELETE = 4;
     var PICKER = 2;
+    var COIN_FILL = 3;
     var NONE = -1;
-    var cursel = NONE;
+
+    var cursel = COLOR_FILL;
 
     var lmanager = new LevelManager();
 
@@ -25,12 +28,8 @@ function LevelEditor(id) {
 
     var createPicker = function() {
         var obj = document.createElement('div');
-        obj.style.display = "block";
+        obj.className = "btn";
         obj.innerText = "PICKER";
-        obj.style.background = "grey";
-        obj.style.color = "white";
-        obj.style.padding = "5px";
-        obj.style.cursor = "pointer";
         obj.onmousedown = function() {
             cursel = PICKER;
         }
@@ -58,9 +57,16 @@ function LevelEditor(id) {
         return div;
     }
 
+    var addCoin = function(row, col) {
+        var coin = document.createElement('div');
+        coin.className = 'coin';
+        coin.style.width = w + "px";
+        coin.style.height = h + "px";
+        divs[row][col].appendChild(coin);
+    }
+
     var divs = {};
     var map = {};
-
     var mouseDown = function(row, col) {
         switch (cursel) {
             case COLOR_FILL:
@@ -77,6 +83,25 @@ function LevelEditor(id) {
                     }
                 }
                 break;
+            case COIN_FILL:
+                {
+                    if (!('coin' in map[row][col]) || map[row][col]['coin'] == 0) {
+                        map[row][col]['coin'] = 1;
+                        addCoin(row, col);
+                    }
+                }
+                break;
+            case DELETE:
+                {
+                    if ('coin' in map[row][col]) {
+                        delete map[row][col]['coin'];
+                        divs[row][col].removeChild(divs[row][col].getElementsByClassName('coin')[0]);
+                    } else {
+                        map[row][col] = {};
+                        divs[row][col].style.background = "none";
+                    }
+                }
+                break;
             case NONE:
                 break;
             default:
@@ -85,17 +110,34 @@ function LevelEditor(id) {
         }
     }
 
+    var createCoinFill = function() {
+        var div = document.createElement('div');
+        div.className = "coin";
+        div.onclick = function() {
+            cursel = COIN_FILL;
+        }
+        return div;
+    }
+
+    var createDelete = function() {
+        var div = document.createElement('div');
+        div.className = "btn";
+        div.innerText = "DELETE";
+        div.onclick = function() {
+            cursel = DELETE;
+        }
+        return div;
+    }
+
     var createTools = function() {
         tools[COLOR_FILL] = createColorFill();
         tools[PICKER] = createPicker();
+        tools[COIN_FILL] = createCoinFill();
+        tools[DELETE] = createDelete();
 
-        var tools_div;
-        tools_div = document.createElement('div');
-        tools_div.style.position = "absolute";
-        tools_div.style.left = cols * w + 10 + "px";  
-        main.appendChild(tools_div);
+        var toolbox = main.getElementsByClassName('toolbox')[0];
         for (var i in tools) {
-            tools_div.appendChild(tools[i]);
+            toolbox.appendChild(tools[i]);
         }
 
     }
@@ -105,12 +147,18 @@ function LevelEditor(id) {
     var createCells = function() {
         divs = {};
         map = {};
+        var grid = main.getElementsByClassName('grid')[0];
+        grid.style.position = "relative";
+        grid.style.width = cols * w + "px";
+        grid.style.height = rows * h + "px";
+        grid.innerHTML = "";
+
         for (var i = 0; i < rows; ++i) {
             divs[i] = {};
             map[i] = {};
             for (var j = 0; j < cols; ++j) {
                 divs[i][j] = get(i, j);
-                main.appendChild(divs[i][j]);
+                grid.appendChild(divs[i][j]);
                 map[i][j] = {};
             }
         }
@@ -141,24 +189,58 @@ function LevelEditor(id) {
     }
 
     this.save = function(name) {
-        lmanager.save(name, this.getLevel());
+        lmanager.addLevel(name, this.getLevel());
+        lmanager.save();
     }
 
-    var createSaveTools = function() {
-        var s = document.createElement('div');
-        s.style.position = "absolute";
-        s.style.top = rows * h + 10 + "px";  
-        main.appendChild(s);
-        var save_btn = document.createElement('div');
-        save_btn.style.padding = "5px";
-        save_btn.style.border = "1px solid black";
-        save_btn.innerText = "SAVE";
-        save_btn.style.cursor = "pointer";
-        save_btn.onclick = function() {
-            self.save("mylevel");
-            alert("saved");
+    var editLevel = function(name) {
+        var inp = main.getElementsByClassName('save_level_name')[0];
+        inp.value = name;
+        var level = lmanager.getLevel(name);
+        rows = level.meta.rows;
+        cols = level.meta.cols;
+        createCells();
+        map = level.map;
+        for (var i = 0; i < rows; ++i) {
+            for (var j = 0; j < cols; ++j) {
+                divs[i][j].style.background = "none";
+                divs[i][j].innerHTML = "";
+                if ('color' in map[i][j]) {
+                    divs[i][j].style.background = map[i][j]['color'];
+                }
+                if ('coin' in map[i][j]) {
+                    addCoin(i, j);
+                }
+            }
         }
-        s.appendChild(save_btn);
+    }
+
+    var displayLevels = function() {
+        var obj = main.getElementsByTagName('ul')[0];
+        var levels = lmanager.getLevels();
+        obj.innerHTML = "";
+        for (var i in levels) {
+            var li = document.createElement('li');
+            li.innerText = i;
+            var o = function(li, i) {
+                li.onclick = function() {
+                    editLevel(i);
+                }
+            };
+            o(li, i);
+            obj.appendChild(li);
+
+        }
+    }
+
+
+    var createSaveTools = function() {
+        var save_btn = main.getElementsByClassName('save_btn')[0];
+        save_btn.onclick = function() {
+            var inp = main.getElementsByClassName('save_level_name')[0];
+            self.save(inp.value);
+            displayLevels();
+        }
     }
 
     this.init = function() {
@@ -166,5 +248,6 @@ function LevelEditor(id) {
         createCells();
         createTools();
         createSaveTools();
+        displayLevels();
     }
 }

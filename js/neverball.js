@@ -6,10 +6,7 @@ function NeverBall(dinfo) {
     var cube_list = [];
     //var cube_list = [];
     var coin_radius = .05;
-    var coins = [
-        new Coin(0, floor_y + 2 * coin_radius, 1, coin_radius, .01),
-        new Coin(0, floor_y + 2 * coin_radius, 1.5, coin_radius, .01),
-    ];
+    var coins = [];
 
     var radius = .1;
     var sphere = new Sphere(0, floor_y + radius, -1, radius);
@@ -224,23 +221,31 @@ function NeverBall(dinfo) {
 
     var lmanager = new LevelManager();
 
-    var loadFloor = function() {
-        var m = lmanager.load("mylevel");
+    var loadLevel = function(name) {
+        var m = lmanager.getLevel(name);
+        if (m == -1) {
+            console.log("Level not found");
+            alert("Level not found");
+        }
         var w = .5;
         floor = [];
+        coins = [];
         for (var i = 0; i < m.meta.rows; ++i) {
             for (var j = 0; j < m.meta.cols; ++j) {
                 var x = j * w;
                 var y = floor_y;
                 var z = i * w;
-                if ("color" in m.map[i][j]) {
-                    floor.push(new Tile(x, y, z, w, w, m.map[i][j]["color"]));
+                if ('color' in m.map[i][j]) {
+                    floor.push(new Tile(x, y, z, w, w, m.map[i][j]['color']));
+                }
+                if ('coin' in m.map[i][j]) {
+                    coins.push(new Coin(x, floor_y + 2 * coin_radius, z, coin_radius, .01));
                 }
             }
         }
     }
 
-    loadFloor();
+    loadLevel("newlevel");
 
     var drawFloor = function() {
         //grid.push(dinfo);
