@@ -9,7 +9,7 @@ function NeverBall(dinfo) {
     var coins = [];
 
     var radius = .1;
-    var sphere = new Sphere(0, floor_y + radius, -1, radius);
+    var sphere = new Sphere(0, floor_y + radius, 3, radius);
     var grid = new Grid(0, floor_y, 0, 6, 6);
 
     var self = this;
@@ -240,6 +240,12 @@ function NeverBall(dinfo) {
                 }
                 if ('coin' in m.map[i][j]) {
                     coins.push(new Coin(x, floor_y + 2 * coin_radius, z, coin_radius, .01));
+                }
+                if ('cube' in m.map[i][j]) {
+                    var height = .1;
+                    var w2 = w * 1;
+                    var cb = new Cube(x, y + height / 2, z, w2, w2, height);
+                    cube_list.push(cb);
                 }
             }
         }

@@ -5,11 +5,13 @@ function LevelEditor(id) {
     var cols = 20;
     var self = this;
     var tools = [];
+
+    var NONE = 0;
     var COLOR_FILL = 1;
-    var DELETE = 4;
     var PICKER = 2;
     var COIN_FILL = 3;
-    var NONE = -1;
+    var DELETE = 4;
+    var CUBE = 5;
 
     var cursel = COLOR_FILL;
 
@@ -32,6 +34,17 @@ function LevelEditor(id) {
         obj.innerText = "PICKER";
         obj.onmousedown = function() {
             cursel = PICKER;
+        }
+        return obj;
+        
+    }
+    
+    var createCube = function() {
+        var obj = document.createElement('div');
+        obj.className = "btn";
+        obj.innerText = "CUBE";
+        obj.onmousedown = function() {
+            cursel = CUBE;
         }
         return obj;
     }
@@ -64,6 +77,12 @@ function LevelEditor(id) {
         coin.style.height = h + "px";
         divs[row][col].appendChild(coin);
     }
+    
+    var addCube = function(row, col) {
+        var cube = document.createElement('div');
+        cube.className = 'cube';
+        divs[row][col].appendChild(cube);
+    }
 
     var divs = {};
     var map = {};
@@ -85,9 +104,19 @@ function LevelEditor(id) {
                 break;
             case COIN_FILL:
                 {
-                    if (!('coin' in map[row][col]) || map[row][col]['coin'] == 0) {
+                    var has = 'coin' in map[row][col] || 'cube' in map[row][col];
+                    if (!has) {
                         map[row][col]['coin'] = 1;
                         addCoin(row, col);
+                    }
+                }
+                break;
+            case CUBE:
+                {
+                    var has = 'coin' in map[row][col] || 'cube' in map[row][col];
+                    if (!has) {
+                        map[row][col]['cube'] = 1;
+                        addCube(row, col);
                     }
                 }
                 break;
@@ -96,6 +125,9 @@ function LevelEditor(id) {
                     if ('coin' in map[row][col]) {
                         delete map[row][col]['coin'];
                         divs[row][col].removeChild(divs[row][col].getElementsByClassName('coin')[0]);
+                    } else if ('cube' in map[row][col]) {
+                        delete map[row][col]['cube'];
+                        divs[row][col].removeChild(divs[row][col].getElementsByClassName('cube')[0]);
                     } else {
                         map[row][col] = {};
                         divs[row][col].style.background = "none";
@@ -130,10 +162,11 @@ function LevelEditor(id) {
     }
 
     var createTools = function() {
-        tools[COLOR_FILL] = createColorFill();
         tools[PICKER] = createPicker();
-        tools[COIN_FILL] = createCoinFill();
         tools[DELETE] = createDelete();
+        tools[CUBE] = createCube();
+        tools[COLOR_FILL] = createColorFill();
+        tools[COIN_FILL] = createCoinFill();
 
         var toolbox = main.getElementsByClassName('toolbox')[0];
         for (var i in tools) {
@@ -210,6 +243,9 @@ function LevelEditor(id) {
                 }
                 if ('coin' in map[i][j]) {
                     addCoin(i, j);
+                }
+                if ('cube' in map[i][j]) {
+                    addCube(i, j);
                 }
             }
         }

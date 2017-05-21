@@ -87,11 +87,12 @@ function Cube(x, y, z, width, breadth, height) {
             dinfo.points.push(pt);
         }
 
-        dinfo.surfaces.push([[0, 1, 2, 3], "red", 1]);
-        dinfo.surfaces.push([[7, 6, 5, 4], "green", 1]);
-        dinfo.surfaces.push([[2, 6, 7, 3], "black", 1]);
-        dinfo.surfaces.push([[4, 5, 1, 0], "blue", 1]);
-        dinfo.surfaces.push([[2, 1, 5, 6], "brown", 1]);
+        dinfo.surfaces.push([[0, 1, 2, 3], "#D2691E", 1]);
+        dinfo.surfaces.push([[7, 6, 5, 4], "#F4A460", 1]);
+        dinfo.surfaces.push([[2, 6, 7, 3], "#CD853F", 1]);
+        dinfo.surfaces.push([[4, 5, 1, 0], "#A0522D", 1]);
+        //top surface
+        dinfo.surfaces.push([[2, 1, 5, 6], "#8B4513", 1, 1]);
     }
 
     this.update = function() {
