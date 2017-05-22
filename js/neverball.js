@@ -269,7 +269,22 @@ function NeverBall(dinfo) {
             console.log("Level not found");
             alert("Level not found");
         }
+
         var w = .5;
+
+        if ('neverball' in m.map) {
+            var nv = m.map['neverball'];
+            var d = nv.pos;
+            var x = d.col * w;
+            var y = floor_y;
+            var z = d.row * w;
+            sphere.origin.x = x; 
+            sphere.origin.y = y; 
+            sphere.origin.z = z; 
+            console.log(nv.dir.v, nv.dir.u);
+            dinfo.camera.yrot = Math.atan2(nv.dir.u, nv.dir.v) - Math.PI;
+        }
+
         floor = [];
         coins = [];
         var cl = [];
@@ -285,6 +300,7 @@ function NeverBall(dinfo) {
                 if ('coin' in m.map[i][j]) {
                     coins.push(new Coin(x, floor_y + 2 * coin_radius, z, coin_radius, .01));
                 }
+
                 if ('cube' in m.map[i][j]) {
                     var height = .1;
                     var w2 = w * 1;

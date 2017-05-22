@@ -1,5 +1,6 @@
 function LevelEditor(id) {
     var main = document.getElementById(id);
+    var grid = main.getElementsByClassName('grid')[0];
     var w = 30, h = 30;
     var rows = 20;
     var cols = 20;
@@ -12,10 +13,34 @@ function LevelEditor(id) {
     var COIN_FILL = 3;
     var DELETE = 4;
     var CUBE = 5;
+    var NEVERBALL = 6;
 
     var cursel = COLOR_FILL;
 
     var lmanager = new LevelManager();
+    var svg;
+    var svgw = 3 * w;
+    var svgh = 3 * h;
+    var line;
+
+    var svgInit = function() {
+        svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', svgw);
+        svg.setAttribute('height', svgh); 
+        svg.style.position = "absolute";
+        svg.style.pointerEvents = "none";
+
+        line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', svgw / 2);
+        line.setAttribute('y1', svgh / 2);
+        line.setAttribute('x2', svgw / 2);
+        line.setAttribute('y2', 0);
+        line.setAttribute('stroke', "black");
+        line.setAttribute('stroke-width', 2);
+        svg.appendChild(line);
+    }
+
+    svgInit();
 
     var createColorFill = function() {
         var colorpicker;
@@ -36,9 +61,19 @@ function LevelEditor(id) {
             cursel = PICKER;
         }
         return obj;
-        
+
     }
-    
+
+    var createCube = function() {
+        var obj = document.createElement('div');
+        obj.className = "btn";
+        obj.innerText = "CUBE";
+        obj.onmousedown = function() {
+            cursel = CUBE;
+        }
+        return obj;
+    }
+
     var createCube = function() {
         var obj = document.createElement('div');
         obj.className = "btn";
@@ -77,16 +112,91 @@ function LevelEditor(id) {
         coin.style.height = h + "px";
         divs[row][col].appendChild(coin);
     }
-    
+
     var addCube = function(row, col) {
         var cube = document.createElement('div');
         cube.className = 'cube';
         divs[row][col].appendChild(cube);
     }
 
+    var neverball_info;
+
+    var resetInfo = function() {
+        neverball_info = {pos : {row:-1, col:-1}, dir:{u:0, v:0}, ball : null, mousedown : false};
+    }
+
+    resetInfo();
+
+    var down = 0;
+    var downpos = {x : 0, y : 0};
+
+    document.onmouseup = function() {
+        neverball_info.mousedown = false;
+        down = 0;
+    }
+
+    var setLine = function(u, v) {
+        var r = Math.min(svgw / 2.0, svgh / 2.0);
+        neverball_info.dir.u = u;
+        neverball_info.dir.v = v;
+        line.setAttribute('x2', svgw / 2 + r * u);
+        line.setAttribute('y2', svgh / 2 + r * v);
+    }
+
+    document.onmousemove = function(e) {
+        if (neverball_info.mousedown == false) return ;
+        var mx = e.clientX;
+        var my = e.clientY;
+        line.setAttribute('x1', svgw / 2);
+        line.setAttribute('y1', svgh / 2);
+        var u = mx - downpos.x;
+        var v = my - downpos.y;
+        var mg = Math.sqrt(u * u + v * v);
+        if (mg == 0) {
+            u = 0;
+            v = -1;
+            mg = 1;
+        }
+        u /= mg;
+        v /= mg;
+        setLine(u, v);
+    }
+
+    var addNeverball = function(row, col) {
+        var prow = neverball_info.pos.row;
+        var pcol = neverball_info.pos.col;
+        if (prow == -1) {
+            var obj = document.createElement('div');
+            obj.className = 'neverball';
+            neverball_info.ball = obj;
+            setLine(0, -1);
+            grid.appendChild(svg);
+            neverball_info.ball.onmousedown = function(e) {
+                neverball_info.mousedown = true;
+                downpos.x = e.clientX;
+                downpos.y = e.clientY;
+            }
+        } else if (prow != row || pcol != col) {
+            divs[prow][pcol].removeChild(neverball_info.ball);
+        }
+        neverball_info.pos.row = row;
+        neverball_info.pos.col = col;
+        var b = svg.getBBox();
+        var x = col * w + w / 2 - svgw / 2;
+        var y = row * h + h / 2 - svgh / 2;
+        svg.style.left = x  + "px";
+        svg.style.top = y + "px";
+        divs[row][col].appendChild(neverball_info.ball);
+    }
+
     var divs = {};
     var map = {};
-    var mouseDown = function(row, col) {
+    var mouseEvent = function(row, col, move = false) {
+        if (move ) {
+            if (neverball_info.mousedown == true) {
+                return ;
+            }
+        }
         switch (cursel) {
             case COLOR_FILL:
                 {
@@ -134,6 +244,15 @@ function LevelEditor(id) {
                     }
                 }
                 break;
+            case NEVERBALL:
+                {
+                    var has = 'coin' in map[row][col] || 'cube' in map[row][col];
+                    if (!has) {
+                        addNeverball(row, col);
+                        map["neverball"] = {pos : neverball_info.pos, dir : neverball_info.dir};
+                    }
+                }
+                break;
             case NONE:
                 break;
             default:
@@ -161,12 +280,23 @@ function LevelEditor(id) {
         return div;
     }
 
+    var createNeverball = function() {
+        var div = document.createElement('div');
+        div.className = 'btn';
+        div.innerText = "NEVERBALL";
+        div.onclick = function() {
+            cursel = NEVERBALL;
+        }
+        return div;
+    }
+
     var createTools = function() {
         tools[PICKER] = createPicker();
         tools[DELETE] = createDelete();
         tools[CUBE] = createCube();
         tools[COLOR_FILL] = createColorFill();
         tools[COIN_FILL] = createCoinFill();
+        tools[NEVERBALL] = createNeverball();
 
         var toolbox = main.getElementsByClassName('toolbox')[0];
         for (var i in tools) {
@@ -175,12 +305,10 @@ function LevelEditor(id) {
 
     }
 
-    var down = 0;
 
     var createCells = function() {
         divs = {};
         map = {};
-        var grid = main.getElementsByClassName('grid')[0];
         grid.style.position = "relative";
         grid.style.width = cols * w + "px";
         grid.style.height = rows * h + "px";
@@ -201,19 +329,18 @@ function LevelEditor(id) {
                 var o = function(i, j) {
                     divs[i][j].onmousedown = function() {
                         down = 1;
-                        mouseDown(i, j);
-                    }
-                    divs[i][j].onmousemove = function() {
-                        if (down) mouseDown(i, j);
+                        mouseEvent(i, j);
                     }
 
-                    divs[i][j].onmouseup = function() {
-                        down = 0;
+                    divs[i][j].onmousemove = function() {
+                        if (down) mouseEvent(i, j, true);
                     }
+
                 }
                 o(i, j);
             }
         }
+
     }
 
     this.getLevel = function() {
@@ -224,6 +351,7 @@ function LevelEditor(id) {
     this.save = function(name) {
         lmanager.addLevel(name, this.getLevel());
         lmanager.save();
+        displayLevels();
     }
 
     var editLevel = function(name) {
@@ -232,6 +360,7 @@ function LevelEditor(id) {
         var level = lmanager.getLevel(name);
         rows = level.meta.rows;
         cols = level.meta.cols;
+        resetInfo();
         createCells();
         map = level.map;
         for (var i = 0; i < rows; ++i) {
@@ -247,7 +376,13 @@ function LevelEditor(id) {
                 if ('cube' in map[i][j]) {
                     addCube(i, j);
                 }
+
             }
+        }
+        if ('neverball' in map) {
+            var info = map['neverball'];
+            addNeverball(info.pos.row, info.pos.col);
+            setLine(info.dir.u, info.dir.v);
         }
     }
 
@@ -275,7 +410,6 @@ function LevelEditor(id) {
         save_btn.onclick = function() {
             var inp = main.getElementsByClassName('save_level_name')[0];
             self.save(inp.value);
-            displayLevels();
         }
     }
 

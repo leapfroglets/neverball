@@ -85,3 +85,16 @@
     border:1px solid black;
     background:grey;
 }
+
+.neverball {
+    position:absolute;
+    margin:0 auto;
+    width:80%;
+    height:80%;
+    background:black;
+    border-radius:50%;
+    cursor:pointer;
+    left:50%;
+    top:50%;
+    transform:translate(-50%, -50%);
+}

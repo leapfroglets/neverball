@@ -11,14 +11,9 @@ function LevelManager() {
     }
 
     this.getLevels = function() {
+        this.loadLevels();
         return levels;
     }
-
-    this.init = function() {
-        this.loadLevels();
-    }
-
-    this.init();
 
     this.addLevel = function(name, level) {
         levels[name] = level;
@@ -29,6 +24,7 @@ function LevelManager() {
     }
 
     this.getLevel = function(name) {
+        this.getLevels();
         if (name in levels) {
             return levels[name];
         } else return -1; //not found

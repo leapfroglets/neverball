@@ -40,6 +40,7 @@ function Renderer(camera, canvas, context) {
 
     //performs the final rendering to the canvas
     this.flush = function() {
+        var twice = 0;
         for (var i = 0; i < this.pending_surfaces.length; ++i) {
             var o = this.pending_surfaces[i][0];
             this.context.beginPath();
@@ -49,6 +50,17 @@ function Renderer(camera, canvas, context) {
                 this.context.lineTo(o[j].x, o[j].y);
             }
             this.context.fill();
+            if (twice) {
+                this.context.translate(0.5, 0.5);
+                this.context.beginPath();
+                this.context.fillStyle = this.pending_surfaces[i][1];
+                this.context.moveTo(o[0].x, o[0].y);
+                for (var j = 1; j < o.length; ++j) {
+                    this.context.lineTo(o[j].x, o[j].y);
+                }
+                this.context.fill();
+                this.context.translate(-0.5, -0.5);
+            }
         }
         this.pending_surfaces = [];
     }
