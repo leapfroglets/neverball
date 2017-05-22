@@ -1,6 +1,7 @@
 function Sphere(x, y, z, radius) {
     var x_rot = 0;
     var z_rot = 0;
+    this.falling = 0;
     this.pts = [];
     this.origin = createPoint(x, y, z);
     var steps = 24;

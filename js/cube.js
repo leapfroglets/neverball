@@ -1,7 +1,7 @@
 
 function Tile(x, y, z, width, breadth, color = "blue") {
     this.pts = [];
-    var origin = createPoint(x, y, z);
+    this.origin = createPoint(x, y, z);
     this.set = function(x, y, z, width, breadth) {
         var sx = -width / 2; 
         var sy = 0;
@@ -18,14 +18,23 @@ function Tile(x, y, z, width, breadth, color = "blue") {
     this.push = function(dinfo) {
         for (var i = 0; i < 4; ++i) {
             var pt = dup(this.pts[i]);
-            pt.x += origin.x;
-            pt.y += origin.y;
-            pt.z += origin.z;
+            pt.x += this.origin.x;
+            pt.y += this.origin.y;
+            pt.z += this.origin.z;
             dinfo.points.push(pt);
         }
 
         dinfo.surfaces.push([[0, 1, 2, 3], color, 1]);
     }
+
+    this.getPoints = function() {
+        var res = [];
+        for (var i = 0; i < 4; ++i) {
+            res.push({x : this.pts[i].x + this.origin.x, z : this.pts[i].z + this.origin.z});
+        }
+        return res;
+    }
+
 
 
 }

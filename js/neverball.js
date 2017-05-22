@@ -36,7 +36,7 @@ function NeverBall(dinfo) {
 
     var radius = .1;
     var sphere = new Sphere(0, floor_y + radius, 3, radius);
-    var grid = new Grid(0, floor_y, 0, 6, 6);
+    //var grid = new Grid(0, floor_y, 0, 6, 6);
 
     var self = this;
 
@@ -143,7 +143,7 @@ function NeverBall(dinfo) {
             axis = pplane;
         }
         //if (minprj < 0.05) return [0];
-        console.log('collision', minprj);
+        //console.log('collision', minprj);
         return [1, axis, minprj];
     }
 
@@ -254,13 +254,57 @@ function NeverBall(dinfo) {
             coins[i].update();
         }
         sphere.update();
-        if (sphere.origin.y - sphere.radius + sphere.vy < floor_y) {
-            sphere.origin.y = floor_y + sphere.radius;
-            sphere.vy *= -0.88;
-        } else {
-            sphere.vy -= .001;
+        //if (!sphere.falling) {
+        var nearest = -1, ndist;
+        for (var i = 0; i < floor.length; ++i) {
+            var dist = sub(floor[i].origin, sphere.origin);
+            dist = dist.x * dist.x + dist.y * dist.y + dist.z * dist.z;
+
+            if (nearest == -1 || dist < ndist) {
+                nearest = i;
+                ndist = dist;
+            }
         }
-        checkCollision();
+
+        //console.log(ndist);
+        var circle = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
+        var c = checkColl(floor[nearest].getPoints(), circle);
+        var fall = 0;
+        if (c[0] == 0) {
+            if (sphere.origin.y - sphere.radius < floor_y) sphere.falling = 1;
+            //console.log("falling already");
+        } else {
+            //if (c[2] < 0.5 * sphere.radius) {
+            //    fall = 1;
+            //    var dx = circle.x - floor[nearest].origin.x;
+            //    var dz = circle.z - floor[nearest].origin.z;
+            //    if (dx * c[1].x + dz * c[1].z < 0) {
+            //        c[1].x *= -1;
+            //        c[1].z *= -1;
+            //    }
+            //    
+            //    //sphere.x += c[1].x * c[2];
+            //    //sphere.z += c[1].z * c[2];
+            //    //sphere.vx = c[1].x * c[2];
+            //    //sphere.vz = c[1].x * c[2];
+            //}
+        }
+        //}
+
+        if (c[0] == 1 && !sphere.falling) {
+            if (sphere.origin.y - sphere.radius <= floor_y) {
+                sphere.origin.y = floor_y + sphere.radius;
+                if (Math.abs(sphere.vy) <= 0.004) sphere.vy = 0;
+                else sphere.vy *= -0.68;
+                console.log(sphere.vy);
+            }
+        }
+
+        sphere.vy -= .001;
+
+        if (!sphere.falling) {
+            checkCollision();
+        }
         var mg = Math.sqrt(sphere.vx * sphere.vx + sphere.vz * sphere.vz);
         if (mg > 0) {
             var ref = dinfo.camera.yrot + Math.PI;
