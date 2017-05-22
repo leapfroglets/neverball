@@ -38,6 +38,12 @@ function Renderer(camera, canvas, context) {
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+    this.drawImage = function(image, pos, w, h, alpha) {
+        this.context.globalAlpha = alpha;
+        this.context.drawImage(image, pos.x, pos.y, w, h);
+        this.context.globalAlpha = 1;
+    }
+
     //performs the final rendering to the canvas
     this.flush = function() {
         var twice = 0;

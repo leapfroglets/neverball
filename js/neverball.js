@@ -1,3 +1,29 @@
+function Star(pos) {
+    var gravity = 0.5;
+
+    this.init = function() {
+        this.pos = dup(pos);
+        this.alpha = 1.0;
+        this.vy = -Math.random() * 20 - 5;
+        this.vx = (Math.random() - 0.5) * 20;
+        this.w = this.h = Math.random() * 50 + 10;
+    }
+
+    this.init();
+
+    this.update = function() {
+        this.pos.x += this.vx;
+        this.vy += gravity;
+        this.pos.y += this.vy;
+        this.alpha *= 0.98;
+    }
+
+    this.destroyed = function() {
+        return this.alpha < 0.05;
+    }
+}
+
+
 function NeverBall(dinfo) {
     var floor_y = -.4;
     var cb = new Cube(0, floor_y + .1, -1, .2, .2, .2);
@@ -195,7 +221,19 @@ function NeverBall(dinfo) {
             var pts = coins[i].getPoints();
             var c = checkColl(pts, circle);
             if (c[0] == 0) continue;
+            //add stars
+            addStar(coins[i].origin);
             coins[i].destroyed = 1;
+        }
+    }
+
+    var stars = [];
+
+    var addStar = function(pos) {
+        //create stars at the position of sphere
+        var sp = dinfo.getScreenCoords(dinfo.projectToScreen(dinfo.toCamera(pos)));
+        for (var i = 0; i < 10; ++i) {
+            stars.push(new Star(sp));
         }
     }
 
@@ -204,6 +242,13 @@ function NeverBall(dinfo) {
         for (var i = 0; i < cube_list.length; ++i) {
             cube_list[i].update();
         }
+        var ns = [];
+        for (var i = 0; i < stars.length; ++i) {
+            if (stars[i].destroyed()) continue;
+            stars[i].update();
+            ns.push(stars[i]);
+        }
+        stars = ns;
 
         for (var i = 0; i < coins.length; ++i) {
             coins[i].update();
@@ -336,6 +381,8 @@ function NeverBall(dinfo) {
         dinfo.flush();
     }
 
+    var obj_star = document.getElementById('star');
+
     this.draw = function() {
         //first clear the renderer
         dinfo.clear();
@@ -358,6 +405,12 @@ function NeverBall(dinfo) {
         dinfo.push(false);
         dinfo.paintersSort();
         dinfo.flush();
+
+        //draw stars
+        for (var i = 0; i < stars.length; ++i) {
+            dinfo.drawImage(obj_star, stars[i].pos, stars[i].w, stars[i].h, stars[i].alpha);
+        }
+
     }
 
 }
