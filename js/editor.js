@@ -478,5 +478,10 @@ function LevelEditor(id) {
         createTools();
         createSaveTools();
         displayLevels();
+        var back_btn = main.getElementsByClassName('back_btn')[0];
+        back_btn.onclick = function() {
+            window.location = "index.html";
+        }
+
     }
 }
