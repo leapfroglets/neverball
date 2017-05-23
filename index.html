@@ -27,12 +27,13 @@ var game = new Game('canvas', {FPS: 60, width:640, height:480});
 game.start();
 
 function resize() {
+    console.log('resize');
     game.resize(window.innerWidth, window.innerHeight);
 }
 
 resize();
 
-//document.addEventListener('resize', resize);
+window.addEventListener('resize', resize);
 
         </script>
     </body>

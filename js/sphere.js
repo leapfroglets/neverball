@@ -4,8 +4,20 @@ function Sphere(x, y, z, radius) {
     this.falling = 0;
     this.pts = [];
     this.origin = createPoint(x, y, z);
+    this.vx = 0; 
+    this.vy = 0;
+    this.vz = 0;
+
+    var self = this;
+
     var steps = 24;
     
+    this.reset = function() {
+        this.vx = this.vy = this.vz = 0;
+        this.falling = 0;
+        this.origin = createPoint(0, 0, 0);
+    }
+
     this.set = function(x, y, z, radius) {
         this.radius = radius;
         var vstp = Math.PI / (steps - 1);
@@ -24,12 +36,6 @@ function Sphere(x, y, z, radius) {
             this.pts.push(row);
         }
     }
-
-    this.vx = 0; 
-    this.vy = 0;
-    this.vz = 0;
-
-    var self = this;
 
     this.set(x, y, z, radius);
 

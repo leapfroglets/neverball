@@ -448,7 +448,14 @@ function NeverBall(dinfo) {
     var lmanager = new LevelManager();
     var goal = null;
 
-    var loadLevel = function(name) {
+    this.loadLevel = function(name) {
+        //reset game states
+        reached_goal = false;
+        goal_shown = false;
+        goal = null;
+        sphere.reset();
+
+        //level map reset
         var m = lmanager.getLevel(name);
         if (m == -1) {
             console.log("Level not found");
@@ -476,9 +483,12 @@ function NeverBall(dinfo) {
         }
 
 
+        stars = [];
         floor = [];
         coins = [];
+        cube_list = [];
         var cl = [];
+
         for (var i = 0; i < m.meta.rows; ++i) {
             cl[i] = [];
             for (var j = 0; j < m.meta.cols; ++j) {
@@ -511,9 +521,9 @@ function NeverBall(dinfo) {
 
             }
         }
-    }
 
-    loadLevel("newlevel");
+
+    }
 
     var drawFloor = function() {
         //grid.push(dinfo);

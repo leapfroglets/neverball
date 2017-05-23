@@ -51,6 +51,7 @@ function Game(container_id, options) {
         this.resize(options.width, options.height);
         setFPS(options.FPS);
         createMenu();
+        listLevels();
         gameloop();
     }
 
@@ -58,6 +59,7 @@ function Game(container_id, options) {
         canvas.width = width;
         canvas.height = height;
         createMenu();
+        listLevels();
     }
 
     var neverball = new NeverBall(dinfo);
@@ -94,6 +96,7 @@ function Game(container_id, options) {
 
     var MENU = 0, GAME = 2;
     var ABOUT = 3;
+    var LEVEL_LIST = 4;
 
     var menu_sel = 0;
     var state = MENU;
@@ -120,24 +123,34 @@ function Game(container_id, options) {
 
     var btnlist = [];
 
-    var createMenu = function() {
-        var w = 180;
-        var gap = 20;
+    var btn_width = 180;
+    var btn_gap = 20;
 
-        btnlist = [];
-        btnlist.push(new Button(0, 0, w, "PLAY"));
-        var h = btnlist[0].h;
-        btnlist.push(new Button(0, 0, w, "LEVEL EDITOR"));
-        btnlist.push(new Button(0, 0, w, "ABOUT"));
-        var sx = dinfo.canvas.width / 2 - w / 2;
-        var sy = (dinfo.canvas.height - btnlist.length * (h + gap) + gap) / 2;
-        for (var i = 0; i < btnlist.length; ++i) {
-            btnlist[i].x = sx;
-            btnlist[i].y = sy + i * (h + gap);
+    var centerize = function(btns) {
+        var h = btns[0].h;
+        var sx = dinfo.canvas.width / 2 - btn_width / 2;
+        var sy = (dinfo.canvas.height - btns.length * (h + btn_gap) + btn_gap) / 2;
+        console.log(btns.length + " " + sx + " " + sy);
+        for (var i = 0; i < btns.length; ++i) {
+            btns[i].x = sx;
+            btns[i].y = sy + i * (h + btn_gap);
         }
     }
 
+    var createMenu = function() {
+        btnlist = [];
+        btnlist.push(new Button(0, 0, btn_width, "PLAY"));
+        btnlist.push(new Button(0, 0, btn_width, "LEVEL EDITOR"));
+        btnlist.push(new Button(0, 0, btn_width, "ABOUT"));
+        centerize(btnlist);
+    }
+
     document.addEventListener('keydown', function(e) {
+        if (e.keyCode == KEY_ESCAPE) {
+            wrapper.enter();
+            state = MENU;
+            return ;
+        }
         if (state == MENU) {
             if (e.keyCode == KEY_UP) {
                 menu_sel = (menu_sel + btnlist.length - 1) % btnlist.length;
@@ -148,12 +161,22 @@ function Game(container_id, options) {
             }
         }
 
+        if (state == LEVEL_LIST) {
+            if (e.keyCode == KEY_UP) {
+                level_sel = (level_sel + level_list.length - 1) % level_list.length;
+            }
+
+            if (e.keyCode == KEY_DOWN) {
+                level_sel = (level_sel + 1) % level_list.length;
+            }
+        }
+
         if (e.keyCode == KEY_ENTER) {
             wrapper.exit();
             if (state == MENU) {
                 if (menu_sel == 0) {
                     wrapper.onexit = function() {
-                        state = GAME;
+                        state = LEVEL_LIST;
                         wrapper.enter();
                     }
                 } else if (menu_sel == 1) {
@@ -165,6 +188,12 @@ function Game(container_id, options) {
                         state = ABOUT;
                         wrapper.enter();
                     }
+                }
+            } else if (state == LEVEL_LIST) {
+                wrapper.onexit = function() {
+                    neverball.loadLevel(level_list[level_sel].caption);
+                    state = GAME;
+                    wrapper.enter();
                 }
             } else if (state == ABOUT) {
                 wrapper.onexit = function() {
@@ -193,10 +222,32 @@ function Game(container_id, options) {
         dinfo.context.fillRect(0, 0, dinfo.canvas.width, dinfo.canvas.height);
         dinfo.context.fillStyle = "black";
         dinfo.context.font = "40px Monospace";
-        dinfo.context.fillText("LEAPFROG INTERSHIP PROJECT", dinfo.canvas.width / 2, dinfo.canvas.height / 2);
+        dinfo.context.fillText("LEAPFROG INTERNSHIP PROJECT", dinfo.canvas.width / 2, dinfo.canvas.height / 2);
         dinfo.context.font = "20px Monospace";
         dinfo.context.fillText("Created by Uttamraj Khanal", dinfo.canvas.width / 2, dinfo.canvas.height / 2 + 40);
     }
+
+    var level_sel = 0;
+    var level_list = [];
+
+    var showLevels = function() {
+        dinfo.context.fillStyle = "skyblue";
+        dinfo.context.fillRect(0, 0, dinfo.canvas.width, dinfo.canvas.height);
+        for (var i = 0; i < level_list.length; ++i) {
+            level_list[i].draw(i == level_sel);
+        }
+    }
+
+    var listLevels = function() {
+        level_list = [];
+        var lmanager = new LevelManager();
+        var lv = lmanager.getLevels();
+        for (var i in lv) {
+            level_list.push(new Button(0, 0, btn_width, i));
+        }
+        centerize(level_list);
+    }
+
 
     var gameloop = function() {
         var frame_start = Date.now();
@@ -205,6 +256,8 @@ function Game(container_id, options) {
             showMenu();
         } else if (state == ABOUT) {
             showAbout();
+        } else if (state == LEVEL_LIST) {
+            showLevels();
         } else if (state == GAME) {
             neverball.update();
             neverball.draw(dinfo);
