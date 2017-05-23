@@ -354,6 +354,11 @@ function LevelEditor(id) {
         displayLevels();
     }
 
+    var deleteLevel = function(name) {
+        lmanager.deleteLevel(name);
+        displayLevels();
+    }
+
     var editLevel = function(name) {
         var inp = main.getElementsByClassName('save_level_name')[0];
         inp.value = name;
@@ -393,13 +398,24 @@ function LevelEditor(id) {
         for (var i in levels) {
             var li = document.createElement('li');
             li.innerText = i;
+            li.className = "level-li";
+            li.style.position = 'relative';
+
+            var cross = document.createElement('div');
+            cross.innerText = 'X';
+            cross.className = 'deletebtn';
+
             var o = function(li, i) {
                 li.onclick = function() {
                     editLevel(i);
                 }
-            };
+                cross.onclick = function() {
+                    deleteLevel(i);
+                }
+            }
             o(li, i);
             obj.appendChild(li);
+            li.appendChild(cross);
 
         }
     }

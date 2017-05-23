@@ -19,6 +19,12 @@ function LevelManager() {
         levels[name] = level;
     }
 
+    this.deleteLevel = function(name) {
+        delete levels[name];
+        this.save();
+        this.loadLevels();
+    }
+
     this.save = function() {
         localStorage.setItem("neverball", JSON.stringify(levels));
     }

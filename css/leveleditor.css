@@ -3,6 +3,7 @@
     padding:0px;
     font-family:Monospace;
 }
+
 .editor {
     margin-top:5px;
 }
@@ -24,11 +25,6 @@
     list-style:none;
 }
 
-.levels_list ul li {
-    background:skyblue;
-    padding:5px;
-    cursor:pointer;
-}
 
 .levels_list ul li:hover {
     background:grey;
@@ -97,4 +93,29 @@
     left:50%;
     top:50%;
     transform:translate(-50%, -50%);
+}
+
+.deletebtn {
+    position:absolute;
+    padding-left:3px;
+    padding-right:3px;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    display:none;
+}
+
+.deletebtn:hover {
+    outline:1px solid white;
+}
+
+.level-li:hover > div {
+    display:block;
+}
+
+.level-li {
+    background:skyblue;
+    padding:5px;
+    cursor:pointer;
+    text-align:left;
 }
