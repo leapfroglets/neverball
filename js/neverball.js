@@ -1,3 +1,57 @@
+function Goal(x, y, z, radius) {
+    this.origin = createPoint(x, y, z);
+    var steps = 24;
+    
+    this.set = function(x, y, z, radius) {
+        this.radius = radius;
+        var vstp = 2.0 * Math.PI / steps;
+
+        this.pts = [];
+
+        this.pts.push(createPoint(0, 0, radius));
+        for (var i = 1; i < steps; ++i) {
+            var pt = rotateY(this.pts[i - 1], vstp);
+            this.pts.push(pt);
+        }
+
+    }
+
+    this.set(x, y, z, radius);
+
+    var self = this;
+
+    this.push = function(dinfo) {
+        var col = ["red", "white", "red"];
+        var w = [1, 0.75, 0.3];
+        for (var j = 0; j < 3; ++j) {
+            var off = dinfo.points.length;
+            for (var i = 0; i < this.pts.length; ++i) {
+                var pt = dup(this.pts[i]);
+                pt.x *= w[j];
+                pt.y *= w[j];
+                pt.z *= w[j];
+                pt.x += this.origin.x;
+                pt.y += this.origin.y;
+                pt.z += this.origin.z;
+                dinfo.points.push(pt);
+            }
+            dinfo.points.push(this.origin);
+
+            var scale = 1;
+            var l = dinfo.points.length - 1;
+            var alpha = .8;
+            for (var i = 0; i < steps; ++i) {
+                var a = (i + 1) % steps;
+                dinfo.surfaces.push([[off + i, off + a, l], col[j], scale]);
+            }
+        }
+    }
+
+    this.update = function() {
+    }
+
+}
+
 function Star(pos) {
     var gravity = 0.5;
 
@@ -39,8 +93,13 @@ function NeverBall(dinfo) {
     //var grid = new Grid(0, floor_y, 0, 6, 6);
 
     var self = this;
+    var snd = new SoundManager();
+
+    var reached_goal = false;
 
     var handleKeyStrokes = function() {
+        if (reached_goal) return ;
+
         var vinc = 0.0001;
         var eff = dinfo.camera.yrot + Math.PI;
         if (KEY_STATE[KEY_UP]) {
@@ -147,92 +206,115 @@ function NeverBall(dinfo) {
         return [1, axis, minprj];
     }
 
+    var goal_shown = false;
+
+    var showGoal = function() {
+        goal_shown = true;
+        console.log("HI");
+    }
+
     var checkCollision = function() {
         var circle = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
-        var spts = [];
-        var collisions = [];
-        for (var i = 0; i < cube_list.length; ++i) {
-            var pts = cube_list[i].getPoints();
-            spts.push(pts);
-            var c = checkColl(pts, circle);
-            if (c[0] == 0) continue;
-            var sx = 0, sz = 0;
-            for (var j = 0; j < pts.length; ++j) {
-                sx += pts[j].x;
-                sz += pts[j].z;
-            }
-            sx /= pts.length;
-            sz /= pts.length;
-            var dx = circle.x - sx;
-            var dz = circle.z - sz;
-            if (dx * c[1].x + dz * c[1].z < 0) {
-                c[1].x *= -1;
-                c[1].z *= -1;
-            }
-            collisions.push([i, c[1], c[2]]);
-        }
-
-        var chosen = -1;
-        for (var i = 0; i < collisions.length; ++i) {
-            var info = collisions[i]; //collision info
-            var obj_id = info[0];
-            var pts = spts[obj_id];
-            var circle2 = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
-            circle2.x += info[2] * info[1].x;
-            circle2.z += info[2] * info[1].z;
-
-            var ok = 1;
-
-            for (var j = 0; j < collisions.length && ok; ++j) {
-                if (i == j) continue;
-                var c = checkColl(spts[collisions[j][0]], circle2);
-                ok = c[0] == 0;
+        if (!sphere.falling) {
+            var spts = [];
+            var collisions = [];
+            for (var i = 0; i < cube_list.length; ++i) {
+                var pts = cube_list[i].getPoints();
+                spts.push(pts);
+                var c = checkColl(pts, circle);
+                if (c[0] == 0) continue;
+                var sx = 0, sz = 0;
+                for (var j = 0; j < pts.length; ++j) {
+                    sx += pts[j].x;
+                    sz += pts[j].z;
+                }
+                sx /= pts.length;
+                sz /= pts.length;
+                var dx = circle.x - sx;
+                var dz = circle.z - sz;
+                if (dx * c[1].x + dz * c[1].z < 0) {
+                    c[1].x *= -1;
+                    c[1].z *= -1;
+                }
+                collisions.push([i, c[1], c[2]]);
             }
 
-            if (ok) {
-                chosen = i;
-                break;
+            var chosen = -1;
+            for (var i = 0; i < collisions.length; ++i) {
+                var info = collisions[i]; //collision info
+                var obj_id = info[0];
+                var pts = spts[obj_id];
+                var circle2 = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
+                circle2.x += info[2] * info[1].x;
+                circle2.z += info[2] * info[1].z;
+
+                var ok = 1;
+
+                for (var j = 0; j < collisions.length && ok; ++j) {
+                    if (i == j) continue;
+                    var c = checkColl(spts[collisions[j][0]], circle2);
+                    ok = c[0] == 0;
+                }
+
+                if (ok) {
+                    chosen = i;
+                    break;
+                }
             }
-        }
-        if (collisions.length) {
-            var found = chosen != -1;
-            if (!found) {
-                console.log("man o man");
-                chosen = 0;
-            } 
-            var info = collisions[chosen]; //collision info
-            if (found) {
-                sphere.origin.x += info[2] * info[1].x;
-                sphere.origin.z += info[2] * info[1].z;
-            } else {
-                //undo
-                sphere.origin.x -= sphere.vx;
-                sphere.origin.y -= sphere.vz;
+            if (collisions.length) {
+                var found = chosen != -1;
+                if (!found) {
+                    console.log("man o man");
+                    chosen = 0;
+                } 
+                var info = collisions[chosen]; //collision info
+                if (found) {
+                    sphere.origin.x += info[2] * info[1].x;
+                    sphere.origin.z += info[2] * info[1].z;
+                } else {
+                    //undo
+                    sphere.origin.x -= sphere.vx;
+                    sphere.origin.y -= sphere.vz;
+                }
+                var dot = sphere.vx * info[1].x + sphere.vz * info[1].z;
+                sphere.vx -= 2 * dot * info[1].x;
+                sphere.vz -= 2 * dot * info[1].z;
+                var mx = 0.0005;
+                var vel = Math.min(sphere.vx * sphere.vx + sphere.vz * sphere.vz, mx);
+                var vol = vel / mx;
+                snd.playSound("wall", vol);
+                //sphere.vx *= 0.9;
+                //sphere.vz *= 0.9;
             }
-            var dot = sphere.vx * info[1].x + sphere.vz * info[1].z;
-            sphere.vx -= 2 * dot * info[1].x;
-            sphere.vz -= 2 * dot * info[1].z;
-            //sphere.vx *= 0.9;
-            //sphere.vz *= 0.9;
         }
         //coins part
+        var dest = 1;
         for (var i = 0; i < coins.length; ++i) {
             if (coins[i].destroyed) continue;
             var pts = coins[i].getPoints();
             var c = checkColl(pts, circle);
-            if (c[0] == 0) continue;
+            if (c[0] == 0) {
+                dest = 0;
+                continue;
+            }
+            snd.playSound("coin", .1);
             //add stars
             addStar(coins[i].origin);
             coins[i].destroyed = 1;
+        }
+        if (dest) {
+            if (!goal_shown) {
+                showGoal();
+            }
         }
     }
 
     var stars = [];
 
-    var addStar = function(pos) {
+    var addStar = function(pos, cnt = 10) {
         //create stars at the position of sphere
         var sp = dinfo.getScreenCoords(dinfo.projectToScreen(dinfo.toCamera(pos)));
-        for (var i = 0; i < 10; ++i) {
+        for (var i = 0; i < cnt; ++i) {
             stars.push(new Star(sp));
         }
     }
@@ -253,8 +335,22 @@ function NeverBall(dinfo) {
         for (var i = 0; i < coins.length; ++i) {
             coins[i].update();
         }
+
         sphere.update();
-        //if (!sphere.falling) {
+
+        if (goal_shown) {
+            if (!reached_goal) {
+                var dist = sub(goal.origin, sphere.origin);
+                dist = dist.x * dist.x + dist.z * dist.z;
+                if (dist < 0.01) {
+                    reached_goal = 1;
+                    sphere.vx = sphere.vy = sphere.vz = 0;
+                    sphere.vy = .09;
+                    addStar(goal.origin, 200);
+                }
+            }
+        }
+        
         var nearest = -1, ndist;
         for (var i = 0; i < floor.length; ++i) {
             var dist = sub(floor[i].origin, sphere.origin);
@@ -302,9 +398,8 @@ function NeverBall(dinfo) {
 
         sphere.vy -= .001;
 
-        if (!sphere.falling) {
-            checkCollision();
-        }
+        checkCollision();
+
         var mg = Math.sqrt(sphere.vx * sphere.vx + sphere.vz * sphere.vz);
         if (mg > 0) {
             var ref = dinfo.camera.yrot + Math.PI;
@@ -351,6 +446,7 @@ function NeverBall(dinfo) {
     var floor = [];
 
     var lmanager = new LevelManager();
+    var goal = null;
 
     var loadLevel = function(name) {
         var m = lmanager.getLevel(name);
@@ -373,6 +469,12 @@ function NeverBall(dinfo) {
             console.log(nv.dir.v, nv.dir.u);
             dinfo.camera.yrot = Math.atan2(nv.dir.u, nv.dir.v) - Math.PI;
         }
+
+        if ('goal' in m.map) {
+            var nv = m.map['goal'];
+            goal = new Goal(nv.pos.col * w, floor_y, nv.pos.row * w, w * 0.5);
+        }
+
 
         floor = [];
         coins = [];
@@ -434,6 +536,12 @@ function NeverBall(dinfo) {
         //first draw the grid which is the bottom most
         //then draw other surfaces on top 
         drawFloor();
+
+        if (goal_shown) {
+            goal.push(dinfo);
+            dinfo.push(false);
+            dinfo.flush();
+        }
 
         for (var i = 0; i < cube_list.length; ++i) {
             cube_list[i].draw(dinfo);

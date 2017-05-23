@@ -14,6 +14,7 @@ function LevelEditor(id) {
     var DELETE = 4;
     var CUBE = 5;
     var NEVERBALL = 6;
+    var GOAL = 7;
 
     var cursel = COLOR_FILL;
 
@@ -83,6 +84,16 @@ function LevelEditor(id) {
         }
         return obj;
     }
+    
+    var createGoal = function() {
+        var obj = document.createElement('div');
+        obj.className = "btn";
+        obj.innerText = "GOAL";
+        obj.onmousedown = function() {
+            cursel = GOAL;
+        }
+        return obj;
+    }
 
     var get = function(row, col) {
         var div = document.createElement('div');
@@ -120,9 +131,11 @@ function LevelEditor(id) {
     }
 
     var neverball_info;
+    var goal_info;
 
     var resetInfo = function() {
         neverball_info = {pos : {row:-1, col:-1}, dir:{u:0, v:0}, ball : null, mousedown : false};
+        goal_info = {pos : {row:-1, col:-1}, goal : null};
     }
 
     resetInfo();
@@ -187,6 +200,22 @@ function LevelEditor(id) {
         svg.style.left = x  + "px";
         svg.style.top = y + "px";
         divs[row][col].appendChild(neverball_info.ball);
+    }
+    
+    var addGoal = function(row, col) {
+        var prow = goal_info.pos.row;
+        var pcol = goal_info.pos.col;
+        if (prow == -1) {
+            var obj = document.createElement('img');
+            obj.src = "images/goal.png";
+            obj.className = 'goal';
+            goal_info.goal = obj;
+        } else if (prow != row || pcol != col) {
+            divs[prow][pcol].removeChild(goal_info.goal);
+        }
+        goal_info.pos.row = row;
+        goal_info.pos.col = col;
+        divs[row][col].appendChild(goal_info.goal);
     }
 
     var divs = {};
@@ -253,6 +282,15 @@ function LevelEditor(id) {
                     }
                 }
                 break;
+            case GOAL:
+                {
+                    var has = 'cube' in map[row][col];
+                    if (!has) {
+                        addGoal(row, col);
+                        map["goal"] = {pos : goal_info.pos};
+                    }
+                }
+                break;
             case NONE:
                 break;
             default:
@@ -297,6 +335,7 @@ function LevelEditor(id) {
         tools[COLOR_FILL] = createColorFill();
         tools[COIN_FILL] = createCoinFill();
         tools[NEVERBALL] = createNeverball();
+        tools[GOAL] = createGoal();
 
         var toolbox = main.getElementsByClassName('toolbox')[0];
         for (var i in tools) {
@@ -388,6 +427,10 @@ function LevelEditor(id) {
             var info = map['neverball'];
             addNeverball(info.pos.row, info.pos.col);
             setLine(info.dir.u, info.dir.v);
+        }
+        if ('goal' in map) {
+            var info = map['goal'];
+            addGoal(info.pos.row, info.pos.col);
         }
     }
 
