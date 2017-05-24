@@ -59,6 +59,7 @@ function Game(container_id, options) {
     this.resize = function(width, height) {
         canvas.width = width;
         canvas.height = height;
+        dinfo.setAspectRatio(width / height);
         createMenu();
         listLevels();
     }

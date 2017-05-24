@@ -441,7 +441,7 @@ function NeverBall(dinfo) {
         }
         var u = Math.cos(dinfo.camera.yrot + Math.PI);
         var v = Math.sin(dinfo.camera.yrot + Math.PI);
-        var gap = .6;
+        var gap = 1;
         var dx = sphere.origin.x - v * gap ;
         var dz = sphere.origin.z - u * gap ;
         dinfo.camera.x += (dx - dinfo.camera.x) / 10;

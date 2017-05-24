@@ -14,9 +14,18 @@ function Renderer(camera, canvas, context) {
     this.points = [];
     this.pending_surfaces = [];
 
+    this.aspect_ratio = 1.0;
+
+    this.setAspectRatio = function(ar) {
+        this.aspect_ratio = ar;
+        //this.aspect_ratio = ar - .1;
+    }
+
+    this.zprp = -.6;
+
     this.getScreenCoords = function(point) {
         return {
-            x : this.canvas.width / 2 * (1 + point.x),
+            x : this.canvas.width / 2 * (1 + point.x / this.aspect_ratio),
             y : this.canvas.height / 2 * (1 - point.y),
             z : point.z
         };
@@ -29,7 +38,8 @@ function Renderer(camera, canvas, context) {
     }
 
     this.projectToScreen = function(point) {
-        return {x : point.x / -point.z, y : point.y / -point.z, z : point.z};
+        var f = 1 / this.zprp / point.z;
+        return {x : point.x * f, y : point.y * f, z : point.z};
     }
 
     this.clear = function() {

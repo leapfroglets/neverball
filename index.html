@@ -23,11 +23,10 @@
         <script src='js/neverball.js'></script>
         <script src='js/game.js'></script>
         <script>
-var game = new Game('canvas', {FPS: 60, width:640, height:480});
+var game = new Game('canvas', {FPS: 60, width:640, height:640});
 game.start();
 
 function resize() {
-    console.log('resize');
     game.resize(window.innerWidth, window.innerHeight);
 }
 
