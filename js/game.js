@@ -99,6 +99,7 @@ function Game(container_id, options) {
     var MENU = 0, GAME = 2;
     var ABOUT = 3;
     var LEVEL_LIST = 4;
+    var HELP = 5;
 
     var menu_sel = 0;
     var state = MENU;
@@ -129,6 +130,7 @@ function Game(container_id, options) {
     var btn_gap = 20;
 
     var centerize = function(btns) {
+        if (btns.length == 0) return ;
         var h = btns[0].h;
         var sx = dinfo.canvas.width / 2 - btn_width / 2;
         var sy = (dinfo.canvas.height - btns.length * (h + btn_gap) + btn_gap) / 2;
@@ -143,6 +145,7 @@ function Game(container_id, options) {
         btnlist = [];
         btnlist.push(new Button(0, 0, btn_width, "PLAY"));
         btnlist.push(new Button(0, 0, btn_width, "LEVEL EDITOR"));
+        btnlist.push(new Button(0, 0, btn_width, "HELP"));
         btnlist.push(new Button(0, 0, btn_width, "ABOUT"));
         centerize(btnlist);
     }
@@ -190,6 +193,11 @@ function Game(container_id, options) {
                     }
                 } else if (menu_sel == 2) {
                     wrapper.onexit = function() {
+                        state = HELP;
+                        wrapper.enter();
+                    }
+                } else if (menu_sel == 3) {
+                    wrapper.onexit = function() {
                         state = ABOUT;
                         wrapper.enter();
                     }
@@ -200,7 +208,7 @@ function Game(container_id, options) {
                     state = GAME;
                     wrapper.enter();
                 }
-            } else if (state == ABOUT) {
+            } else if (state == ABOUT || state == HELP) {
                 wrapper.onexit = function() {
                     state = MENU;
                     wrapper.enter();
@@ -230,6 +238,16 @@ function Game(container_id, options) {
         dinfo.context.fillText("LEAPFROG INTERNSHIP PROJECT", dinfo.canvas.width / 2, dinfo.canvas.height / 2);
         dinfo.context.font = "20px Monospace";
         dinfo.context.fillText("Created by Uttamraj Khanal", dinfo.canvas.width / 2, dinfo.canvas.height / 2 + 40);
+    }
+    
+    var showHelp = function() {
+        dinfo.context.fillStyle = "skyblue";
+        dinfo.context.fillRect(0, 0, dinfo.canvas.width, dinfo.canvas.height);
+        dinfo.context.fillStyle = "black";
+        dinfo.context.font = "20px Monospace";
+        dinfo.context.fillText("CONTROLS: ARROW KEYS, ESCAPE / ENTER to return to main menu", dinfo.canvas.width / 2, dinfo.canvas.height / 2);
+        dinfo.context.font = "20px Monospace";
+        dinfo.context.fillText("You need to create levels first to play(or import levels somehow)", dinfo.canvas.width / 2, dinfo.canvas.height / 2 + 40);
     }
 
     var level_sel = 0;
@@ -266,7 +284,10 @@ function Game(container_id, options) {
         } else if (state == GAME) {
             neverball.update();
             neverball.draw(dinfo);
+        } else if (state == HELP) {
+            showHelp();
         } else console.log("undefined state");
+
         wrapper.update();
         var diff = Math.max(1, frame_time - (Date.now() - frame_start));
         setTimeout(gameloop, diff);
