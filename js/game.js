@@ -124,7 +124,7 @@ function Game(container_id, options) {
 
     var btnlist = [];
 
-    var btn_width = 180;
+    var btn_width = 280;
     var btn_gap = 20;
 
     var centerize = function(btns) {

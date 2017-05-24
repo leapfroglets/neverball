@@ -1,0 +1,34 @@
+Uttamraj Khanal
+
+I have created a 3d game as a part of an internship program at Leapfrog. The only language used was javascript.
+I already had the basic understanding of how to go about writing a 3d renderer. So I decided to write a game similar to "Neverball".
+
+The first step in creating a 3d renderer is understanding how projection onto a surface works (similar to the human eye).
+This process is the conversion of 3 dimensional coordinates to 2 dimensional one. So, a point(x, y, z), we need to find where it will be located
+on the screen after projection.
+
+The second step would be visible surface detection. This step aims to find out which surfaces are visible and which surfaces are hidden.
+
+For a simple cube, I have used backface culling to remove the surfaces that cannot be seen by a viewer(hidden behind the cube's front surfaces).
+
+Then for many different cubes, I have used simple sorting algorithm(also known as Painters algorithm)
+in which the surfaces are sorted according to a single depth value and finally, surfaces
+are rendered from back to the front order. Obviously this doesnot work if surfaces are very close to each other. For solving visible surface detection problem
+efficiently and correctly, Z-buffering is a very good alternative. But I have resorted to the above mentioned sorting algorithm. Z-buffering will perform depth
+comparison on a pixel by pixel basis.
+
+Another crucial step would be clipping surfaces if we want the camera to enter a scene. Surfaces must be clipped or hidden early so that surfaces behind the 
+camera are not rendered, otherwise they will appear inverted in the screen. Also another problem would be divide by zero while performing perspective divide.
+Thus z-clipping becomes a must if we want our player to move around the scene with the camera following around.
+
+For constructing a sphere, spherical coordinate system was used. Similar method for a coin(a cylinder).
+
+The sphere rotation physics are also not much complicated. Basically rotate sphere about the vector perpendicular to its velocity where the rotation is
+depended on the magnitude of its velocity.
+
+For collision detection, I have completely ignored the y information. So collision is done in 2d only. If it had been a cube vs a cube collision detection in 3d, it
+would have been rather easy. But for a cube vs sphere, the process becomes complicated. I have done circle to rectangle collision in 2d while creating a snooker
+game clone by using SAT algorithm(Separating Axis Test). The same algorithm, I have also used for creating car race game while at leapfrog. It can be extended to 3d
+also. I hope to improve collision for my 3d game sometime later.
+
+So, to sum it up, using my small knowledge of computer graphics, physics and collision detection, I was able to pull off a game like this.

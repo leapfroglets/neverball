@@ -2,6 +2,7 @@
 function Tile(x, y, z, width, breadth, color = "blue") {
     this.pts = [];
     this.origin = createPoint(x, y, z);
+    this.color = color;
     this.set = function(x, y, z, width, breadth) {
         var sx = -width / 2; 
         var sy = 0;

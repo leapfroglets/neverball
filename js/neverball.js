@@ -455,7 +455,8 @@ function NeverBall(dinfo) {
     var LOSE = 1, WIN = 2;
     var game_over;
     var galpha;
-
+    var level_info;
+    var tile_w = .5;
     this.loadLevel = function(name) {
         //reset game states
         goal_shown = false;
@@ -471,7 +472,7 @@ function NeverBall(dinfo) {
             alert("Level not found");
         }
 
-        var w = .5;
+        var w = tile_w;
 
         if ('neverball' in m.map) {
             var nv = m.map['neverball'];
@@ -494,6 +495,7 @@ function NeverBall(dinfo) {
 
         stars = [];
         floor = [];
+        level_info = {rows : m.meta.rows, cols : m.meta.cols, cells : []};
         coins = [];
         cube_list = [];
         var cl = [];
@@ -506,6 +508,7 @@ function NeverBall(dinfo) {
                 var z = i * w;
                 if ('color' in m.map[i][j]) {
                     floor.push(new Tile(x, y, z, w, w, m.map[i][j]['color']));
+                    level_info.cells.push({row : i, col : j});
                 }
                 if ('coin' in m.map[i][j]) {
                     coins.push(new Coin(x, floor_y + 2 * coin_radius, z, coin_radius, .01));
@@ -548,6 +551,25 @@ function NeverBall(dinfo) {
 
     var obj_star = document.getElementById('star');
 
+    var drawMap = function() {
+        var cw = 10, ch = 10;
+        var map_w = level_info.cols * cw;
+        var map_h = level_info.rows * ch;
+        var sx = dinfo.canvas.width - map_w - 10;
+        var sy = 10;
+        for (var i = 0; i < floor.length; ++i) {
+            var x = level_info.cells[i].col;
+            var y = level_info.cells[i].row;
+            dinfo.context.fillStyle = floor[i].color;
+            dinfo.context.fillRect(sx + x * cw, sy + y * ch, cw, ch);
+        }
+        dinfo.context.fillStyle = "orange";
+        var r = Math.min(cw, ch) * 0.5;
+        dinfo.context.beginPath();
+        dinfo.context.arc(sx + sphere.origin.x / tile_w * cw + r, sy + sphere.origin.z / tile_w * ch + r, r, 0, 2 * Math.PI);
+        dinfo.context.fill();
+    }
+
     this.draw = function() {
         //first clear the renderer
         dinfo.clear();
@@ -577,10 +599,13 @@ function NeverBall(dinfo) {
         dinfo.paintersSort();
         dinfo.flush();
 
+        drawMap();
+
         //draw stars
         for (var i = 0; i < stars.length; ++i) {
             dinfo.drawImage(obj_star, stars[i].pos, stars[i].w, stars[i].h, stars[i].alpha);
         }
+
 
         if (game_over) {
             galpha += 0.005;
@@ -590,11 +615,12 @@ function NeverBall(dinfo) {
             dinfo.context.fillStyle = "rgba(0, 0, 0, " + galpha + ")";
             var off = 0;
             dinfo.context.fillRect(off, off, dinfo.canvas.width - 2 * off, dinfo.canvas.height - 2 * off);
-            dinfo.context.fillStyle = "white";
+            dinfo.context.fillStyle = "black";
             dinfo.context.font = "40px Monospace";
             var txt = game_over == WIN ? "LEVEL FINISHED!" : "GAME OVER";
             dinfo.context.fillText(txt, dinfo.canvas.width / 2, dinfo.canvas.height / 2);
         }
+
 
     }
 
