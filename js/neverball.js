@@ -327,9 +327,17 @@ function NeverBall(dinfo) {
         }
         stars = ns;
 
+        ns = [];
+
         for (var i = 0; i < coins.length; ++i) {
             coins[i].update();
+            if (coins[i].destroyed || coins[i].alpha < 0.1) {
+                continue;
+            }
+            ns.push(coins[i]);
         }
+        
+        coins = ns;
 
         if (!sphere.falling || sphere.origin.y > floor_y - sphere.radius - 1) {
             sphere.update();
@@ -422,7 +430,8 @@ function NeverBall(dinfo) {
             var u2 = Math.cos(dinfo.camera.yrot + Math.PI);
             var v2 = Math.sin(dinfo.camera.yrot + Math.PI);
             var dt = u2 * znorm + v2 * xnorm;
-            var df = dt > .06 ? mg * 1.5 : mg / 2;
+            //var df = dt > .06 ? mg * 1.5 : mg / 2;
+            df = mg;
 
             var dot = sphere.vx * v + sphere.vz * u;
             if (dot > 0) {
@@ -441,7 +450,7 @@ function NeverBall(dinfo) {
         }
         var u = Math.cos(dinfo.camera.yrot + Math.PI);
         var v = Math.sin(dinfo.camera.yrot + Math.PI);
-        var gap = 1;
+        var gap = .8;
         var dx = sphere.origin.x - v * gap ;
         var dz = sphere.origin.z - u * gap ;
         dinfo.camera.x += (dx - dinfo.camera.x) / 10;
