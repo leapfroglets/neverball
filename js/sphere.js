@@ -52,7 +52,7 @@ function Sphere(x, y, z, radius) {
 
         for (var i = 0; i + 1 < this.pts.length; ++i) {
             for (var j = 0; j + 1 < this.pts[0].length; ++j) {
-                var color = (Math.floor(j / 4)) % 2 == 0 ? "rgba(0, 0, 0, .5)" : "rgba(255, 255, 255, .5)";
+                var color = (Math.floor(j / 6)) % 2 == 0 ? "rgba(0, 0, 0, .5)" : "rgba(255, 255, 255, .5)";
                 var si = i * this.pts[0].length;
                 var sip = si + this.pts[0].length;
                 var scale = 1;

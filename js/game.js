@@ -204,9 +204,14 @@ function Game(container_id, options) {
                 }
             } else if (state == LEVEL_LIST) {
                 wrapper.onexit = function() {
-                    neverball.loadLevel(level_list[level_sel].caption);
-                    state = GAME;
-                    wrapper.enter();
+                    if (level_list.length) {
+                        neverball.loadLevel(level_list[level_sel].caption);
+                        state = GAME;
+                        wrapper.enter();
+                    } else {
+                        state = MENU;
+                        wrapper.enter();
+                    }
                 }
             } else if (state == ABOUT || state == HELP) {
                 wrapper.onexit = function() {
@@ -258,6 +263,11 @@ function Game(container_id, options) {
         dinfo.context.fillRect(0, 0, dinfo.canvas.width, dinfo.canvas.height);
         for (var i = 0; i < level_list.length; ++i) {
             level_list[i].draw(i == level_sel);
+        }
+        if (level_list.length == 0) {
+            dinfo.context.font = "20px Monospace";
+            dinfo.context.fillStyle = "red";
+            dinfo.context.fillText("No levels found! You need to create some in order to play.", dinfo.canvas.width / 2, dinfo.canvas.height / 2);
         }
     }
 

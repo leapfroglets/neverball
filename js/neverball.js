@@ -431,7 +431,7 @@ function NeverBall(dinfo) {
             var v2 = Math.sin(dinfo.camera.yrot + Math.PI);
             var dt = u2 * znorm + v2 * xnorm;
             //var df = dt > .06 ? mg * 1.5 : mg / 2;
-            df = mg;
+            df = mg * (dt < 0 ? 1 : 1.5);
 
             var dot = sphere.vx * v + sphere.vz * u;
             if (dot > 0) {
