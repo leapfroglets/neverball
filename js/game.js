@@ -19,6 +19,7 @@ function Wrapper(dinfo, obj) {
             alpha += f;
             if (alpha > 1) {
                 alpha = 1;
+                //must be set by sth
                 this.onexit();
             }
         }
@@ -147,8 +148,11 @@ function Game(container_id, options) {
 
     document.addEventListener('keydown', function(e) {
         if (e.keyCode == KEY_ESCAPE) {
-            wrapper.enter();
-            state = MENU;
+            wrapper.exit();
+            wrapper.onexit = function() {
+                state = MENU;
+                wrapper.enter();
+            }
             return ;
         }
         if (state == MENU) {

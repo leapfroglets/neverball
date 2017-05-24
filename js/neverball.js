@@ -95,11 +95,8 @@ function NeverBall(dinfo) {
     var self = this;
     var snd = new SoundManager();
 
-    var reached_goal = false;
 
     var handleKeyStrokes = function() {
-        if (reached_goal) return ;
-
         var vinc = 0.0001;
         var eff = dinfo.camera.yrot + Math.PI;
         if (KEY_STATE[KEY_UP]) {
@@ -210,82 +207,80 @@ function NeverBall(dinfo) {
 
     var showGoal = function() {
         goal_shown = true;
-        console.log("HI");
     }
 
     var checkCollision = function() {
+        if (sphere.falling) return ;
         var circle = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
-        if (!sphere.falling) {
-            var spts = [];
-            var collisions = [];
-            for (var i = 0; i < cube_list.length; ++i) {
-                var pts = cube_list[i].getPoints();
-                spts.push(pts);
-                var c = checkColl(pts, circle);
-                if (c[0] == 0) continue;
-                var sx = 0, sz = 0;
-                for (var j = 0; j < pts.length; ++j) {
-                    sx += pts[j].x;
-                    sz += pts[j].z;
-                }
-                sx /= pts.length;
-                sz /= pts.length;
-                var dx = circle.x - sx;
-                var dz = circle.z - sz;
-                if (dx * c[1].x + dz * c[1].z < 0) {
-                    c[1].x *= -1;
-                    c[1].z *= -1;
-                }
-                collisions.push([i, c[1], c[2]]);
+        var spts = [];
+        var collisions = [];
+        for (var i = 0; i < cube_list.length; ++i) {
+            var pts = cube_list[i].getPoints();
+            spts.push(pts);
+            var c = checkColl(pts, circle);
+            if (c[0] == 0) continue;
+            var sx = 0, sz = 0;
+            for (var j = 0; j < pts.length; ++j) {
+                sx += pts[j].x;
+                sz += pts[j].z;
+            }
+            sx /= pts.length;
+            sz /= pts.length;
+            var dx = circle.x - sx;
+            var dz = circle.z - sz;
+            if (dx * c[1].x + dz * c[1].z < 0) {
+                c[1].x *= -1;
+                c[1].z *= -1;
+            }
+            collisions.push([i, c[1], c[2]]);
+        }
+
+        var chosen = -1;
+        for (var i = 0; i < collisions.length; ++i) {
+            var info = collisions[i]; //collision info
+            var obj_id = info[0];
+            var pts = spts[obj_id];
+            var circle2 = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
+            circle2.x += info[2] * info[1].x;
+            circle2.z += info[2] * info[1].z;
+
+            var ok = 1;
+
+            for (var j = 0; j < collisions.length && ok; ++j) {
+                if (i == j) continue;
+                var c = checkColl(spts[collisions[j][0]], circle2);
+                ok = c[0] == 0;
             }
 
-            var chosen = -1;
-            for (var i = 0; i < collisions.length; ++i) {
-                var info = collisions[i]; //collision info
-                var obj_id = info[0];
-                var pts = spts[obj_id];
-                var circle2 = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
-                circle2.x += info[2] * info[1].x;
-                circle2.z += info[2] * info[1].z;
-
-                var ok = 1;
-
-                for (var j = 0; j < collisions.length && ok; ++j) {
-                    if (i == j) continue;
-                    var c = checkColl(spts[collisions[j][0]], circle2);
-                    ok = c[0] == 0;
-                }
-
-                if (ok) {
-                    chosen = i;
-                    break;
-                }
+            if (ok) {
+                chosen = i;
+                break;
             }
-            if (collisions.length) {
-                var found = chosen != -1;
-                if (!found) {
-                    console.log("man o man");
-                    chosen = 0;
-                } 
-                var info = collisions[chosen]; //collision info
-                if (found) {
-                    sphere.origin.x += info[2] * info[1].x;
-                    sphere.origin.z += info[2] * info[1].z;
-                } else {
-                    //undo
-                    sphere.origin.x -= sphere.vx;
-                    sphere.origin.y -= sphere.vz;
-                }
-                var dot = sphere.vx * info[1].x + sphere.vz * info[1].z;
-                sphere.vx -= 2 * dot * info[1].x;
-                sphere.vz -= 2 * dot * info[1].z;
-                var mx = 0.0005;
-                var vel = Math.min(sphere.vx * sphere.vx + sphere.vz * sphere.vz, mx);
-                var vol = vel / mx;
-                snd.playSound("wall", vol);
-                //sphere.vx *= 0.9;
-                //sphere.vz *= 0.9;
+        }
+        if (collisions.length) {
+            var found = chosen != -1;
+            if (!found) {
+                console.log("man o man");
+                chosen = 0;
+            } 
+            var info = collisions[chosen]; //collision info
+            if (found) {
+                sphere.origin.x += info[2] * info[1].x;
+                sphere.origin.z += info[2] * info[1].z;
+            } else {
+                //undo
+                sphere.origin.x -= sphere.vx;
+                sphere.origin.y -= sphere.vz;
             }
+            var dot = sphere.vx * info[1].x + sphere.vz * info[1].z;
+            sphere.vx -= 2 * dot * info[1].x;
+            sphere.vz -= 2 * dot * info[1].z;
+            var mx = 0.0005;
+            var vel = Math.min(sphere.vx * sphere.vx + sphere.vz * sphere.vz, mx);
+            var vol = vel / mx;
+            snd.playSound("wall", vol);
+            //sphere.vx *= 0.9;
+            //sphere.vz *= 0.9;
         }
         //coins part
         var dest = 1;
@@ -303,7 +298,7 @@ function NeverBall(dinfo) {
             coins[i].destroyed = 1;
         }
         if (dest) {
-            if (!goal_shown) {
+            if (!goal_shown && goal != null) {
                 showGoal();
             }
         }
@@ -336,21 +331,27 @@ function NeverBall(dinfo) {
             coins[i].update();
         }
 
-        sphere.update();
+        if (!sphere.falling || sphere.origin.y > floor_y - sphere.radius - 1) {
+            sphere.update();
+        } else {
+            if (game_over == 0) {
+                game_over = LOSE;
+            }
+        }
 
         if (goal_shown) {
-            if (!reached_goal) {
+            if (game_over == 0) {
                 var dist = sub(goal.origin, sphere.origin);
                 dist = dist.x * dist.x + dist.z * dist.z;
                 if (dist < 0.01) {
-                    reached_goal = 1;
+                    game_over = WIN;
                     sphere.vx = sphere.vy = sphere.vz = 0;
                     sphere.vy = .09;
                     addStar(goal.origin, 200);
                 }
             }
         }
-        
+
         var nearest = -1, ndist;
         for (var i = 0; i < floor.length; ++i) {
             var dist = sub(floor[i].origin, sphere.origin);
@@ -363,37 +364,41 @@ function NeverBall(dinfo) {
         }
 
         //console.log(ndist);
-        var circle = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
-        var c = checkColl(floor[nearest].getPoints(), circle);
-        var fall = 0;
-        if (c[0] == 0) {
-            if (sphere.origin.y - sphere.radius < floor_y) sphere.falling = 1;
-            //console.log("falling already");
-        } else {
-            //if (c[2] < 0.5 * sphere.radius) {
-            //    fall = 1;
-            //    var dx = circle.x - floor[nearest].origin.x;
-            //    var dz = circle.z - floor[nearest].origin.z;
-            //    if (dx * c[1].x + dz * c[1].z < 0) {
-            //        c[1].x *= -1;
-            //        c[1].z *= -1;
-            //    }
-            //    
-            //    //sphere.x += c[1].x * c[2];
-            //    //sphere.z += c[1].z * c[2];
-            //    //sphere.vx = c[1].x * c[2];
-            //    //sphere.vz = c[1].x * c[2];
-            //}
-        }
-        //}
-
-        if (c[0] == 1 && !sphere.falling) {
-            if (sphere.origin.y - sphere.radius <= floor_y) {
-                sphere.origin.y = floor_y + sphere.radius;
-                if (Math.abs(sphere.vy) <= 0.004) sphere.vy = 0;
-                else sphere.vy *= -0.68;
-                console.log(sphere.vy);
+        if (nearest != -1) {
+            var circle = {x : sphere.origin.x, z : sphere.origin.z, r : sphere.radius};
+            var c = checkColl(floor[nearest].getPoints(), circle);
+            var fall = 0;
+            if (c[0] == 0) {
+                if (sphere.origin.y - sphere.radius < floor_y) sphere.falling = 1;
+                //console.log("falling already");
+            } else {
+                //if (c[2] < 0.5 * sphere.radius) {
+                //    fall = 1;
+                //    var dx = circle.x - floor[nearest].origin.x;
+                //    var dz = circle.z - floor[nearest].origin.z;
+                //    if (dx * c[1].x + dz * c[1].z < 0) {
+                //        c[1].x *= -1;
+                //        c[1].z *= -1;
+                //    }
+                //    
+                //    //sphere.x += c[1].x * c[2];
+                //    //sphere.z += c[1].z * c[2];
+                //    //sphere.vx = c[1].x * c[2];
+                //    //sphere.vz = c[1].x * c[2];
+                //}
             }
+            //}
+
+            if (c[0] == 1 && !sphere.falling) {
+                if (sphere.origin.y - sphere.radius <= floor_y) {
+                    sphere.origin.y = floor_y + sphere.radius;
+                    if (Math.abs(sphere.vy) <= 0.004) sphere.vy = 0;
+                    else sphere.vy *= -0.68;
+                    console.log(sphere.vy);
+                }
+            }
+        } else {
+            console.log("no floor in level");
         }
 
         sphere.vy -= .001;
@@ -447,12 +452,16 @@ function NeverBall(dinfo) {
 
     var lmanager = new LevelManager();
     var goal = null;
+    var LOSE = 1, WIN = 2;
+    var game_over;
+    var galpha;
 
     this.loadLevel = function(name) {
         //reset game states
-        reached_goal = false;
         goal_shown = false;
+        game_over = 0;
         goal = null;
+        galpha = 0;
         sphere.reset();
 
         //level map reset
@@ -571,6 +580,20 @@ function NeverBall(dinfo) {
         //draw stars
         for (var i = 0; i < stars.length; ++i) {
             dinfo.drawImage(obj_star, stars[i].pos, stars[i].w, stars[i].h, stars[i].alpha);
+        }
+
+        if (game_over) {
+            galpha += 0.005;
+            if (galpha > 0.6) {
+                galpha = 0.6;
+            }
+            dinfo.context.fillStyle = "rgba(0, 0, 0, " + galpha + ")";
+            var off = 0;
+            dinfo.context.fillRect(off, off, dinfo.canvas.width - 2 * off, dinfo.canvas.height - 2 * off);
+            dinfo.context.fillStyle = "white";
+            dinfo.context.font = "40px Monospace";
+            var txt = game_over == WIN ? "LEVEL FINISHED!" : "GAME OVER";
+            dinfo.context.fillText(txt, dinfo.canvas.width / 2, dinfo.canvas.height / 2);
         }
 
     }

@@ -90,7 +90,7 @@ badd +1 js/levelmanager.js
 badd +270 js/editor.js
 badd +26 level_editor.html
 badd +100 css/leveleditor.css
-badd +0 js/audio.js
+badd +1 js/audio.js
 argglobal
 silent! argdel *
 $argadd index.html
@@ -971,11 +971,11 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 2 - ((1 * winheight(0) + 20) / 41)
+let s:l = 463 - ((30 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-2
+463
 normal! 09|
 tabedit js/coin.js
 set splitbelow splitright
@@ -1223,12 +1223,12 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 48 - ((8 * winheight(0) + 20) / 41)
+let s:l = 49 - ((9 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-48
-normal! 010|
+49
+normal! 021|
 tabedit js/game.js
 set splitbelow splitright
 set nosplitbelow
@@ -1481,7 +1481,7 @@ exe s:l
 normal! zt
 35
 normal! 019|
-tabnext 4
+tabnext 7
 set stal=1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf

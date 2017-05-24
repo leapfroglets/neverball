@@ -452,14 +452,14 @@ function LevelEditor(id) {
                 li.onclick = function() {
                     editLevel(i);
                 }
-                cross.onclick = function() {
+                cross.onclick = function(e) {
+                    e.stopPropagation();
                     deleteLevel(i);
                 }
             }
             o(li, i);
             obj.appendChild(li);
             li.appendChild(cross);
-
         }
     }
 
