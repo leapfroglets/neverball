@@ -9,3 +9,26 @@
 .resources {
     display:none;
 }
+
+#to-level-editor a {
+    text-decoration:none;
+    color:black;
+}
+
+#to-level-editor {
+    position:absolute;
+    left:20px;
+    top:20px;
+    font-family:"Monospace";
+    background:silver;
+    cursor:pointer;
+    padding:5px;
+    padding-left:10px;
+    padding-right:10px;
+    opacity:0.8;
+}
+
+#to-level-editor:hover {
+    background:grey;
+    color:white;
+}

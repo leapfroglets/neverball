@@ -143,7 +143,7 @@ function Game(container_id, options) {
     var createMenu = function() {
         btnlist = [];
         btnlist.push(new Button(0, 0, btn_width, "PLAY"));
-        btnlist.push(new Button(0, 0, btn_width, "LEVEL EDITOR"));
+        btnlist.push(new Button(0, 0, btn_width, "DEMO"));
         btnlist.push(new Button(0, 0, btn_width, "HELP"));
         btnlist.push(new Button(0, 0, btn_width, "ABOUT"));
         centerize(btnlist);
@@ -193,7 +193,9 @@ function Game(container_id, options) {
                     }
                 } else if (menu_sel == 1) {
                     wrapper.onexit = function() {
-                        document.location.href = "level_editor.html";
+                        state = MENU;
+                        wrapper.enter();
+                        alert("demo will be available later");
                     }
                 } else if (menu_sel == 2) {
                     wrapper.onexit = function() {
