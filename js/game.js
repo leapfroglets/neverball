@@ -193,7 +193,7 @@ function Game(container_id, options) {
                     }
                 } else if (menu_sel == 1) {
                     wrapper.onexit = function() {
-                        window.location.href = "./level_editor.html";
+                        document.location.href = "level_editor.html";
                     }
                 } else if (menu_sel == 2) {
                     wrapper.onexit = function() {
