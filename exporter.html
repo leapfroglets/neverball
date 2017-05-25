@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<title>NEVERBALL</title>
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
+    </head>
+
+    <body>
+        Name<input id='name' type=text>
+        Content<textarea id='level'></textarea>
+        <div id='export' onclick="levelExport();">Export</div>
+        <script src='js/levelmanager.js'></script>
+        <script src='js/demo.js'></script>
+    <script>
+function levelExport() {
+    var obj = document.getElementById('name');
+    var lv = document.getElementById('level');
+    lv.innerText = exportLevel(obj.value);
+    
+
+}
+    </script>
+    </body>
+</html>
+

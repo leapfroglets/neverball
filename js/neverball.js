@@ -511,20 +511,25 @@ function NeverBall(dinfo) {
     var galpha;
     var level_info;
     var tile_w = .5;
+
     this.loadLevel = function(name) {
+        var m = lmanager.getLevel(name);
+        //level map reset
+        if (m == -1) {
+            console.log("Level not found");
+            alert("Level not found");
+        } else {
+            this.loadLevelObj(m);
+        }
+    }
+
+    this.loadLevelObj = function(m) {
         //reset game states
         goal_shown = false;
         game_over = 0;
         goal = null;
         galpha = 0;
         sphere.reset();
-
-        //level map reset
-        var m = lmanager.getLevel(name);
-        if (m == -1) {
-            console.log("Level not found");
-            alert("Level not found");
-        }
 
         var w = tile_w;
 

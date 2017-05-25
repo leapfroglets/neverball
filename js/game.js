@@ -193,9 +193,11 @@ function Game(container_id, options) {
                     }
                 } else if (menu_sel == 1) {
                     wrapper.onexit = function() {
-                        state = MENU;
+                        //exportLevel('neverball');
+                        var lvl = getDemoLevel("neverball");
+                        neverball.loadLevelObj(lvl);
+                        state = GAME;
                         wrapper.enter();
-                        alert("demo will be available later");
                     }
                 } else if (menu_sel == 2) {
                     wrapper.onexit = function() {
