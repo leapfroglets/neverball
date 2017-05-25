@@ -86,9 +86,9 @@ function Sphere(x, y, z, radius) {
             }
         }
 
-        //this.vx *= 0.98;
+        this.vx *= 0.999;
         this.vy *= 0.98;
-        //this.vz *= 0.98;
+        this.vz *= 0.999;
 
     }
 

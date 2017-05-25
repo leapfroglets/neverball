@@ -90,11 +90,14 @@ function NeverBall(dinfo) {
 
     var radius = .1;
     var sphere = new Sphere(0, floor_y + radius, 3, radius);
+    this.sph = sphere;
     //var grid = new Grid(0, floor_y, 0, 6, 6);
 
     var self = this;
     var snd = new SoundManager();
+    var zrot = 0, xrot = 0;
 
+    this.TILT = 1;
 
     var handleKeyStrokes = function() {
         var vinc = 0.0001;
@@ -118,6 +121,7 @@ function NeverBall(dinfo) {
             var v = vinc * Math.sin(eff + Math.PI / 2);
             sphere.vz += u;
             sphere.vx += v;
+
         }
 
         if (KEY_STATE[KEY_RIGHT]) {
@@ -130,6 +134,47 @@ function NeverBall(dinfo) {
         if (KEY_STATE[KEY_SPACE]) {
             sphere.vy = .03;
         }
+
+        var pl = 0;
+        var pu = 0;
+        if (self.TILT) {
+            if (KEY_STATE[KEY_LEFT]) {
+                zrot += 0.004;
+                if (zrot > Math.PI / 4) zrot = Math.PI / 4;
+                pl = 1;
+
+            }
+
+            if (KEY_STATE[KEY_RIGHT]) {
+                zrot -= 0.004;
+                if (zrot < -Math.PI / 4) zrot = -Math.PI / 4;
+                pl = 1;
+            }
+
+            if (KEY_STATE[KEY_DOWN]) {
+                xrot += 0.004;
+                if (xrot > Math.PI / 4) xrot = Math.PI / 4;
+                pu = 1;
+
+            }
+
+            if (KEY_STATE[KEY_UP]) {
+                xrot -= 0.004;
+                if (xrot < -Math.PI / 10) xrot = -Math.PI / 10;
+                pu = 1;
+            }
+        }
+
+        if (!pu) {
+            xrot -= xrot / 50;
+        }
+
+        if (!pl) {
+            zrot -= zrot / 50;
+        }
+
+
+
     }
 
     function checkColl(poly, circle) {
@@ -279,8 +324,8 @@ function NeverBall(dinfo) {
             var vel = Math.min(sphere.vx * sphere.vx + sphere.vz * sphere.vz, mx);
             var vol = vel / mx;
             snd.playSound("wall", vol);
-            //sphere.vx *= 0.9;
-            //sphere.vz *= 0.9;
+            sphere.vx *= 0.98;
+            sphere.vz *= 0.98;
         }
         //coins part
         var dest = 1;
@@ -431,7 +476,7 @@ function NeverBall(dinfo) {
             var v2 = Math.sin(dinfo.camera.yrot + Math.PI);
             var dt = u2 * znorm + v2 * xnorm;
             //var df = dt > .06 ? mg * 1.5 : mg / 2;
-            df = mg * (dt < 0 ? 1 : 1.5);
+            df = mg * (dt < 0 ? 1.5 : 1.5);
 
             var dot = sphere.vx * v + sphere.vz * u;
             if (dot > 0) {
@@ -582,6 +627,7 @@ function NeverBall(dinfo) {
     this.draw = function() {
         //first clear the renderer
         dinfo.clear();
+        dinfo.info = {point : dinfo.toCamera(sphere.origin), xrot : xrot, zrot : zrot};
 
         //first draw the grid which is the bottom most
         //then draw other surfaces on top 

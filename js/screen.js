@@ -199,10 +199,25 @@ function Renderer(camera, canvas, context) {
     }
 
     this.push = function(cull = false) {
+
         for (var i = 0; i < this.points.length; ++i) {
             this.points[i] = this.toCamera(this.points[i]);
         }
+
+        for (var i = 0; i < this.points.length; ++i) {
+            this.points[i] = sub(this.points[i], this.info.point);
+        }
+
+        for (var i = 0; i < this.points.length; ++i) {
+            this.points[i] = rotateZ(rotateX(this.points[i], this.info.xrot), this.info.zrot);
+        }
+
+        for (var i = 0; i < this.points.length; ++i) {
+            this.points[i] = add(this.points[i], this.info.point);
+        }
+
         clip();
+
         for (var i = 0; i < this.points.length; ++i) {
             this.points[i] = this.projectToScreen(this.points[i]);
         }

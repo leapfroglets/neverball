@@ -89,7 +89,6 @@ function Game(container_id, options) {
                 camera.yrot -= .01;
             }
         }
-        
     }
     
 
@@ -159,6 +158,11 @@ function Game(container_id, options) {
             }
             return ;
         }
+
+        if (e.keyCode == 'T'.charCodeAt(0) && state == GAME) {
+            neverball.TILT ^= 1;
+        }
+
         if (state == MENU) {
             if (e.keyCode == KEY_UP) {
                 menu_sel = (menu_sel + btnlist.length - 1) % btnlist.length;
@@ -189,7 +193,7 @@ function Game(container_id, options) {
                     }
                 } else if (menu_sel == 1) {
                     wrapper.onexit = function() {
-                        window.location = "level_editor.html";
+                        window.location.href = "./level_editor.html";
                     }
                 } else if (menu_sel == 2) {
                     wrapper.onexit = function() {
