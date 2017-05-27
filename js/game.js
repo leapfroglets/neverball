@@ -258,7 +258,7 @@ function Game(container_id, options) {
         dinfo.context.fillRect(0, 0, dinfo.canvas.width, dinfo.canvas.height);
         dinfo.context.fillStyle = "black";
         dinfo.context.font = "20px Monospace";
-        dinfo.context.fillText("CONTROLS: ARROW KEYS, ESCAPE / ENTER to return to main menu", dinfo.canvas.width / 2, dinfo.canvas.height / 2);
+        dinfo.context.fillText("CONTROLS: ARROW KEYS, T (toggle tilt mode), ESCAPE / ENTER to return to main menu", dinfo.canvas.width / 2, dinfo.canvas.height / 2);
         dinfo.context.font = "20px Monospace";
         dinfo.context.fillText("You need to create levels first to play(or import levels somehow)", dinfo.canvas.width / 2, dinfo.canvas.height / 2 + 40);
     }

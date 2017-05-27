@@ -424,23 +424,7 @@ function NeverBall(dinfo) {
             if (c[0] == 0) {
                 if (sphere.origin.y - sphere.radius < floor_y) sphere.falling = 1;
                 //console.log("falling already");
-            } else {
-                //if (c[2] < 0.5 * sphere.radius) {
-                //    fall = 1;
-                //    var dx = circle.x - floor[nearest].origin.x;
-                //    var dz = circle.z - floor[nearest].origin.z;
-                //    if (dx * c[1].x + dz * c[1].z < 0) {
-                //        c[1].x *= -1;
-                //        c[1].z *= -1;
-                //    }
-                //    
-                //    //sphere.x += c[1].x * c[2];
-                //    //sphere.z += c[1].z * c[2];
-                //    //sphere.vx = c[1].x * c[2];
-                //    //sphere.vz = c[1].x * c[2];
-                //}
-            }
-            //}
+            } 
 
             if (c[0] == 1 && !sphere.falling) {
                 if (sphere.origin.y - sphere.radius <= floor_y) {
@@ -451,7 +435,7 @@ function NeverBall(dinfo) {
                 }
             }
         } else {
-            console.log("no floor in level");
+            sphere.falling = 1;
         }
 
         sphere.vy -= .001;
